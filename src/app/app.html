@@ -1,2 +1,15 @@
-<h1>hello world</h1>
-<router-outlet />
+<header>
+  <nav>
+    <div class="bg-slate-200 flex items-center justify-between px-2.5">
+      <h1 class="text-xl text-gray-600">Job Portal</h1>
+      <p-menubar [model]="items" class="bg-transparent rounded-none text-black!" />
+      <p-button label="Login" icon="pi pi-sign-in" size="small" />
+    </div>
+  </nav>
+</header>
+
+<main>
+  <div class="px-2.5">
+    <router-outlet />
+  </div>
+</main>

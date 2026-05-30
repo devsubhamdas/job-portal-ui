@@ -7,3 +7,10 @@ body {
   background-color: white;
   color: black;
 }
+
+.p-menubar-item-link-active {
+  @apply bg-slate-300 rounded-md;
+  .p-menubar-item-icon {
+    @apply text-black;
+  }
+}
