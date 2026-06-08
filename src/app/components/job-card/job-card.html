@@ -1,0 +1,61 @@
+<p-card>
+  <div class="grid gap-3">
+    <!-- top section  -->
+    <div class="flex items-center gap-2.5">
+      <!-- avatar  -->
+      <div>
+        <div
+          class="w-12 aspect-square flex items-center justify-center border border-slate-500 rounded-full"
+        >
+          <span>AU</span>
+        </div>
+      </div>
+      <!-- job details  -->
+      <div class="grow">
+        <h1 class="text-xl font-medium">Job Title</h1>
+        <div class="text-sm text-slate-600">
+          <span>Company</span>
+          <span> West Bengal, IN</span>
+        </div>
+      </div>
+      <!-- other details  -->
+      <div class="self-start">
+        <span class="text-sm text-slate-400">Posted 15 minutes ago</span>
+      </div>
+    </div>
+
+    <!-- mid section  -->
+    <div>
+      <div class="flex items-center justify-start gap-2">
+        <p-tag class="font-medium" severity="success" value="Full-Time" />
+        <p-tag class="font-medium" severity="info" value="In-Person" />
+      </div>
+    </div>
+
+    <!-- bottom section  -->
+    <div>
+      <div class="flex justify-between items-center">
+        <div>
+          <p>
+            <span class="text-lg font-medium">{{
+              25000 | currency: 'INR' : 'symbol' : '1.0-0' : 'en-IN'
+            }}</span>
+            <span class="text-sm text-slate-400">/month </span>
+          </p>
+        </div>
+        <div>
+          <p-button
+            [label]="btnOption().label"
+            [icon]="btnOption().icon"
+            [size]="btnOption().size"
+            [severity]="btnOption().severity"
+            [raised]="btnOption().raised"
+            [rounded]="btnOption().rounded"
+            [disabled]="btnOption().disabled"
+            (onClick)="onBtnAction.emit()"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</p-card>

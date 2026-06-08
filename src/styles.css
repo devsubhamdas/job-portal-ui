@@ -4,13 +4,26 @@
 @import 'tailwindcss-primeui';
 
 body {
-  background-color: white;
-  color: black;
+  @apply bg-slate-50 text-black;
 }
 
+header {
+  z-index: 999;
+}
+
+.p-menubar-item-link {
+  @apply p-4 text-slate-500;
+}
 .p-menubar-item-link-active {
-  @apply bg-slate-300 rounded-md;
-  .p-menubar-item-icon {
-    @apply text-black;
-  }
+  @apply border-b-2 border-slate-500;
+}
+
+.p-menubar-item-link-active.p-menubar-item-link,
+.p-menubar-item-link-active .p-menubar-item-icon {
+  @apply text-slate-900;
+}
+
+.p-button:focus {
+  outline: none;
+  box-shadow: none;
 }

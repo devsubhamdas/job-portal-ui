@@ -1,0 +1,114 @@
+<div class="py-20">
+  <div class="w-md max-w-lg mx-auto">
+    <div class="my-6"><h1 class="text-3xl">Sign-Up Form</h1></div>
+    <div>
+      <form [formGroup]="signupForm" (ngSubmit)="onSubmin($event)">
+        <div class="flex flex-col gap-3">
+          <div>
+            <input
+              pInputText
+              id="name"
+              type="text"
+              formControlName="name"
+              placeholder="Enter Your Name"
+              autocomplete="off"
+              [pAutoFocus]="false"
+              [fluid]="true"
+            />
+
+            @if (name.invalid && (name.touched || name.dirty || formSubmitAttempted)) {
+              <small class="text-red-500">
+                @if (name.errors?.['required']) {
+                  Name is required
+                }
+              </small>
+            }
+          </div>
+          <div>
+            <input
+              pInputText
+              id="email"
+              type="email"
+              formControlName="email"
+              placeholder="Enter Your Email"
+              autocomplete="new-email"
+              [pAutoFocus]="false"
+              [fluid]="true"
+            />
+            @if (email.invalid && (email.touched || email.dirty || formSubmitAttempted)) {
+              <small class="text-red-500">
+                @if (email.errors?.['required']) {
+                  Email is required
+                } @else if (email.errors?.['email']) {
+                  Please enter a valid email
+                }
+              </small>
+            }
+          </div>
+          <div>
+            <p-password
+              id="password"
+              formControlName="password"
+              [toggleMask]="true"
+              [feedback]="false"
+              placeholder="Enter your password"
+              autocomplete="new-password"
+              [pAutoFocus]="false"
+              [fluid]="true"
+            />
+            @if (password.invalid && (password.touched || password.dirty || formSubmitAttempted)) {
+              <small class="text-red-500">
+                @if (password.errors?.['required']) {
+                  Password is required
+                }
+              </small>
+            }
+          </div>
+          <div>
+            <input
+              pInputText
+              id="cPassword"
+              type="text"
+              formControlName="cPassword"
+              placeholder="Confirm Your Password"
+              autocomplete="off"
+              [pAutoFocus]="false"
+              [fluid]="true"
+            />
+            @if (
+              cPassword.invalid && (cPassword.touched || cPassword.dirty || formSubmitAttempted)
+            ) {
+              <small class="text-red-500">
+                @if (cPassword.errors?.['required']) {
+                  Confirm-Password is required
+                }
+              </small>
+            } @else if (
+              signupForm.errors?.['passwordMismatch'] &&
+              (cPassword.touched || cPassword.dirty || formSubmitAttempted)
+            ) {
+              <small class="text-red-500"> Passwords didn't match </small>
+            }
+          </div>
+          <div class="">
+            <p-select
+              formControlName="role"
+              [options]="roles"
+              [invalid]="isInvalid('role')"
+              optionLabel="name"
+              placeholder="Select a Role"
+              class=""
+              [fluid]="true"
+            />
+            @if (isInvalid('role')) {
+              <small class="text-red-500">User-Role is required </small>
+            }
+          </div>
+          <div class="mt-4">
+            <p-button type="submit" label="Submit" severity="contrast" [fluid]="true" />
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,1 +1,29 @@
-<p>job-search works!</p>
+<!-- layout  -->
+<div class="my-16 mx-auto max-w-3xl grid gap-8">
+  <!-- search section  -->
+  <div>
+    <p-icon-field>
+      <p-inputicon [class]="searchResultsLoading() ? 'pi pi-spinner pi-spin' : 'pi pi-search'" />
+      <input
+        pInputText
+        type="text"
+        id="job-query"
+        placeholder="Search jobs..."
+        formControlName="username"
+        fluid
+      />
+    </p-icon-field>
+  </div>
+
+  <!-- search results section -->
+  <div class="grid gap-3.5">
+    <app-job-card [btnOption]="btnOption" (onBtnAction)="handleClick()"></app-job-card>
+    <!-- to be deleted -->
+    <app-job-card [btnOption]="btnOption"></app-job-card>
+    <app-job-card [btnOption]="btnOption"></app-job-card>
+  </div>
+
+  <div>
+    <app-not-found-card content="No Jobs found."></app-not-found-card>
+  </div>
+</div>

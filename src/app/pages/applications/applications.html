@@ -1,1 +1,49 @@
-<p>applications works!</p>
+<div class="grid gap-8 my-14 mx-auto max-w-5xl">
+  <div>
+    <!-- profile  -->
+    <div class="flex items-center justify-start gap-2.5">
+      <div
+        class="w-16 aspect-square flex items-center justify-center border border-slate-700 rounded-full"
+      >
+        <span class="text-2xl">AU</span>
+      </div>
+      <div>
+        <div class="text-xl font-medium">Admin User</div>
+        <p class="text-sm text-slate-500">admin@example.com</p>
+      </div>
+    </div>
+
+    <div>
+      <div class="mt-8 mb-4"><span class="text-lg font-medium"> Profile Details </span></div>
+      <div class="grid grid-cols-[320px_1fr] grid-rows-3">
+        <!-- label  -->
+        <div><span class="text-slate-400">Full Name</span></div>
+        <!-- value  -->
+        <div><span>Admin User</span></div>
+
+        <!-- divider -->
+        <div class="col-span-2">
+          <p-divider />
+        </div>
+
+        <!-- label  -->
+        <div class="text-slate-400">Email</div>
+        <!-- value  -->
+        <div>admin@example.com</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- applications  -->
+  <div>
+    <div class="my-4"><span class="text-lg font-medium">Applications</span></div>
+    <div class="grid gap-3.5">
+      <app-job-card [btnOption]="btnOption"></app-job-card>
+      <app-job-card [btnOption]="btnOption"></app-job-card>
+      <app-job-card [btnOption]="btnOption"></app-job-card>
+    </div>
+    <div>
+      <app-not-found-card></app-not-found-card>
+    </div>
+  </div>
+</div>

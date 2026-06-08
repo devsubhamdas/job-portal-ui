@@ -1,9 +1,17 @@
-<header>
+<header class="sticky top-0">
   <nav>
     <div class="bg-slate-200 flex items-center justify-between px-2.5">
-      <h1 class="text-xl text-gray-600">Job Portal</h1>
-      <p-menubar [model]="items" class="bg-transparent rounded-none text-black!" />
-      <p-button label="Login" icon="pi pi-sign-in" size="small" />
+      <a routerLink="/" class="text-xl text-gray-600">Job Portal</a>
+      <p-menubar [model]="items" class="bg-transparent rounded-none text-black p-0" />
+      <p-button
+        label="Login"
+        icon="pi pi-sign-in"
+        severity="contrast"
+        size="small"
+        [autofocus]="false"
+        (onClick)="showLoginDialog()"
+        class="focus:outline-none focus:border-none"
+      />
     </div>
   </nav>
 </header>
@@ -12,4 +20,73 @@
   <div class="px-2.5">
     <router-outlet />
   </div>
+
+  <!-- login form dialog -->
+  <p-dialog
+    header="Login"
+    [modal]="true"
+    [(visible)]="loginDialogVisibility"
+    [dismissableMask]="true"
+    [focusOnShow]="false"
+    (onHide)="onDialogHide()"
+  >
+    <div>
+      <form
+        #loginFormEl
+        [formGroup]="loginForm"
+        (ngSubmit)="onSubmit($event)"
+        class="flex flex-col gap-4 w-xs max-w-md"
+      >
+        <div class="flex flex-col gap-2">
+          <input
+            pInputText
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="Enter your email"
+            autocomplete="off"
+            [pAutoFocus]="false"
+            [fluid]="true"
+          />
+
+          @if (email.invalid && (email.touched || email.dirty || formSubmitAttempted)) {
+            <small class="text-red-500">
+              @if (email.errors?.['required']) {
+                Email is required
+              } @else if (email.errors?.['email']) {
+                Please enter a valid email
+              }
+            </small>
+          }
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <p-password
+            id="password"
+            formControlName="password"
+            [toggleMask]="true"
+            [feedback]="false"
+            placeholder="Enter your password"
+            autocomplete="new-password"
+            [pAutoFocus]="false"
+            [fluid]="true"
+          />
+
+          @if (password.invalid && (password.touched || password.dirty || formSubmitAttempted)) {
+            <small class="text-red-500"> Password is required </small>
+          }
+        </div>
+
+        <p-button type="submit" label="Login" size="small" severity="contrast" class="self-end" />
+      </form>
+    </div>
+    <div class="mt-4">
+      <p class="text-sm">
+        Don't have an account?
+        <a class="text-blue-400 hover:text-blue-500 cursor-pointer" (click)="onActionCreate($event)"
+          >Create</a
+        >
+      </p>
+    </div>
+  </p-dialog>
 </main>
