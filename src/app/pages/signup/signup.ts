@@ -13,7 +13,7 @@ import {
 } from '@angular/forms';
 
 interface Role {
-  name: string;
+  label: string;
   value: string;
 }
 
@@ -32,7 +32,7 @@ interface Role {
 })
 export class Signup implements OnInit {
   signupForm: FormGroup;
-  roles: Role[] = [];
+  roleOptions: Role[] = [];
   formSubmitAttempted: boolean = false;
 
   constructor(private fb: FormBuilder) {
@@ -51,13 +51,13 @@ export class Signup implements OnInit {
   }
 
   ngOnInit(): void {
-    this.roles = [
+    this.roleOptions = [
       {
-        name: 'Admin',
+        label: 'Admin',
         value: 'ADMIN',
       },
       {
-        name: 'User',
+        label: 'User',
         value: 'USER',
       },
     ];

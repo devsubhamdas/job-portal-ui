@@ -12,7 +12,7 @@ import { SelectModule } from 'primeng/select';
 import { RadioButtonModule } from 'primeng/radiobutton';
 
 interface JobType {
-  name: string;
+  label: string;
   value: string;
 }
 
@@ -39,7 +39,7 @@ export class Admin implements OnInit {
   createJobDialogVisibility: boolean = false;
   createJobForm: FormGroup;
   formSubmitAttempted: boolean = false;
-  jobTypes: JobType[] = [];
+  jobTypeOptions: JobType[] = [];
 
   constructor(private fb: FormBuilder) {
     this.createJobForm = this.fb.group({
@@ -54,17 +54,17 @@ export class Admin implements OnInit {
   }
 
   ngOnInit(): void {
-    this.jobTypes = [
+    this.jobTypeOptions = [
       {
-        name: 'Full-time',
+        label: 'Full-time',
         value: 'FULL-TIME',
       },
       {
-        name: 'Part-time',
+        label: 'Part-time',
         value: 'PART-TIME',
       },
       {
-        name: 'Internship',
+        label: 'Internship',
         value: 'INTERNSHIP',
       },
     ];

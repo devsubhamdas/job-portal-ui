@@ -93,9 +93,10 @@
           <div class="">
             <p-select
               formControlName="role"
-              [options]="roles"
+              [options]="roleOptions"
               [invalid]="isInvalid('role')"
-              optionLabel="name"
+              optionLabel="label"
+              optionValue="value"
               placeholder="Select a Role"
               class=""
               [fluid]="true"
