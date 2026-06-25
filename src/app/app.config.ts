@@ -9,6 +9,8 @@ import Aura from '@primeuix/themes/aura';
 
 import { registerLocaleData } from '@angular/common';
 import localeIn from '@angular/common/locales/en-IN';
+import { apolloProvider } from './core/graphql/apollo.provider';
+import { provideHttpClient, withFetch } from '@angular/common/http';
 
 registerLocaleData(localeIn);
 
@@ -17,6 +19,8 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
+    provideHttpClient(withFetch()),
+    apolloProvider,
     { provide: LOCALE_ID, useValue: 'en-IN' },
     providePrimeNG({
       theme: {
