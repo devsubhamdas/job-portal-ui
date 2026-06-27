@@ -2,12 +2,12 @@ export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: { input: string; output: string };
-  String: { input: string; output: string };
-  Boolean: { input: boolean; output: boolean };
-  Int: { input: number; output: number };
-  Float: { input: number; output: number };
-  DateTime: { input: unknown; output: unknown };
+  ID: { input: string; output: string; }
+  String: { input: string; output: string; }
+  Boolean: { input: boolean; output: boolean; }
+  Int: { input: number; output: number; }
+  Float: { input: number; output: number; }
+  DateTime: { input: unknown; output: unknown; }
 };
 
 export type ApplyForJobInput = {
@@ -56,7 +56,7 @@ export type Job = {
 export enum JobType {
   FullTime = 'FULL_TIME',
   Internship = 'INTERNSHIP',
-  PartTime = 'PART_TIME',
+  PartTime = 'PART_TIME'
 }
 
 export type LoginInput = {
@@ -75,25 +75,31 @@ export type Mutation = {
   signup: User;
 };
 
+
 export type MutationApplyForJobArgs = {
   input: ApplyForJobInput;
 };
+
 
 export type MutationCancelJobApplicationArgs = {
   input: CancleJobApplicationInput;
 };
 
+
 export type MutationCreateJobArgs = {
   input: CreateJobInput;
 };
+
 
 export type MutationDeleteJobArgs = {
   input: DeleteJobInput;
 };
 
+
 export type MutationLoginArgs = {
   input: LoginInput;
 };
+
 
 export type MutationSignupArgs = {
   input: SignupInput;
@@ -105,6 +111,7 @@ export type Query = {
   me?: Maybe<User>;
   searchJobs: Array<Job>;
 };
+
 
 export type QuerySearchJobsArgs = {
   input: SearchJobsInput;
@@ -133,5 +140,5 @@ export type User = {
 
 export enum UserRole {
   Admin = 'ADMIN',
-  User = 'USER',
+  User = 'USER'
 }

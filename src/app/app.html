@@ -1,17 +1,35 @@
+@let loginErr = loginError();
 <header class="sticky top-0">
   <nav>
     <div class="bg-slate-200 flex items-center justify-between px-2.5">
       <a routerLink="/" class="text-xl text-gray-600">Job Portal</a>
-      <p-menubar [model]="items" class="bg-transparent rounded-none text-black p-0" />
-      <p-button
-        label="Login"
-        icon="pi pi-sign-in"
-        severity="contrast"
-        size="small"
-        [autofocus]="false"
-        (onClick)="showLoginDialog()"
-        class="focus:outline-none focus:border-none"
-      />
+      <p-menubar [model]="navbarItems" class="bg-transparent rounded-none text-black p-0" />
+      <div>
+        @if (authUser() === null) {
+          <div>
+            <p-button
+              label="Login"
+              icon="pi pi-sign-in"
+              severity="contrast"
+              size="small"
+              [autofocus]="false"
+              (onClick)="showLoginDialog()"
+              class="focus:outline-none focus:border-none"
+            />
+          </div>
+        } @else {
+          <div>
+            <p-menu #profileMenu [model]="profileMenuItems" [popup]="true" />
+            <p-button
+              (click)="profileMenu.toggle($event)"
+              icon="pi pi-user"
+              size="small"
+              severity="contrast"
+              class="focus:outline-none focus:border-none"
+            />
+          </div>
+        }
+      </div>
     </div>
   </nav>
 </header>
@@ -34,7 +52,7 @@
       <form
         #loginFormEl
         [formGroup]="loginForm"
-        (ngSubmit)="onSubmit($event)"
+        (ngSubmit)="onLogin($event)"
         class="flex flex-col gap-4 w-xs max-w-md"
       >
         <div class="flex flex-col gap-2">
@@ -57,6 +75,8 @@
                 Please enter a valid email
               }
             </small>
+          } @else if (loginErr && loginErr.field === 'email') {
+            <small class="text-red-500">{{ loginErr?.message }}</small>
           }
         </div>
 
@@ -74,10 +94,19 @@
 
           @if (password.invalid && (password.touched || password.dirty || formSubmitAttempted)) {
             <small class="text-red-500"> Password is required </small>
+          } @else if (loginErr && loginErr.field === 'password') {
+            <small class="text-red-500">{{ loginErr?.message }}</small>
           }
         </div>
 
-        <p-button type="submit" label="Login" size="small" severity="contrast" class="self-end" />
+        <p-button
+          type="submit"
+          label="Login"
+          size="small"
+          severity="contrast"
+          class="self-end"
+          [loading]="loginInProgress()"
+        />
       </form>
     </div>
     <div class="mt-4">

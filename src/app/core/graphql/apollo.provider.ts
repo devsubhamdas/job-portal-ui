@@ -9,6 +9,7 @@ export const apolloProvider = provideApollo(() => {
   return {
     link: httpLink.create({
       uri: 'http://localhost:8081/graphql',
+      withCredentials: true,
     }),
     cache: new InMemoryCache(),
   };

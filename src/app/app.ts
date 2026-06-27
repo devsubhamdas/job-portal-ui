@@ -3,11 +3,13 @@ import { RouterOutlet, Router, RouterLinkWithHref } from '@angular/router';
 import { MenubarModule } from 'primeng/menubar';
 import { ButtonModule } from 'primeng/button';
 import { MenuItem } from 'primeng/api';
+import { MenuModule } from 'primeng/menu';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AuthService } from './services/auth/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -15,6 +17,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
     RouterOutlet,
     ReactiveFormsModule,
     MenubarModule,
+    MenuModule,
     ButtonModule,
     DialogModule,
     PasswordModule,
@@ -27,15 +30,23 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 })
 export class App implements OnInit {
   protected readonly title = signal('client');
-  items: MenuItem[] | undefined;
+  navbarItems: MenuItem[] | undefined;
+  profileMenuItems: MenuItem[] | undefined;
   loginDialogVisibility: boolean = false;
   loginForm: FormGroup;
   formSubmitAttempted = false;
 
+  loginInProgress = signal<boolean>(false);
+  authUser: typeof this.authService.user;
+
+  loginError = signal<{ field: string; message: string } | null>(null);
+
   constructor(
     private fb: FormBuilder,
     private router: Router,
+    private authService: AuthService,
   ) {
+    this.authUser = this.authService.user;
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
@@ -43,7 +54,7 @@ export class App implements OnInit {
   }
 
   ngOnInit() {
-    this.items = [
+    this.navbarItems = [
       {
         label: 'Job Search',
         icon: 'pi pi-briefcase',
@@ -69,15 +80,63 @@ export class App implements OnInit {
         },
       },
     ];
+
+    this.profileMenuItems = [
+      {
+        label: 'Account',
+        items: [
+          { label: 'Profile', icon: 'pi pi-address-book' },
+          { label: 'Logout', icon: 'pi pi-sign-out', command: () => this.onLogout() },
+        ],
+      },
+    ];
   }
 
-  onSubmit(event: SubmitEvent) {
+  // Handle Login
+  onLogin(event: SubmitEvent) {
     this.formSubmitAttempted = true;
     if (this.loginForm.invalid) {
       return;
     }
 
-    console.log(this.loginForm.value);
+    this.loginInProgress.set(true);
+    const payload = this.loginForm.value;
+    this.authService.login(payload).subscribe({
+      next: (result) => {
+        if (typeof result.loading === 'boolean') this.loginInProgress.set(result.loading);
+        if (result.error) console.error(result.error);
+        this.authUser.set(this.authService.user());
+        this.loginDialogVisibility = false;
+        this.loginError.set(null);
+      },
+      error: (err) => {
+        console.error(err);
+        this.loginInProgress.set(false);
+        if (String(err.message).match('invalid email')) {
+          this.loginError.set({
+            field: 'email',
+            message: 'Invalid Email',
+          });
+        }
+        if (String(err.message).match('invalid password')) {
+          this.loginError.set({
+            field: 'password',
+            message: 'Invalid Password',
+          });
+        }
+      },
+    });
+  }
+
+  // Handle Logout
+  onLogout() {
+    this.authService.logout().subscribe({
+      next: (result) => {
+        if (result.data?.logout === true) this.router.navigate(['/']);
+        if (result.error) console.error(result.error);
+      },
+      error: (err) => console.error(err),
+    });
   }
 
   get email() {
@@ -94,6 +153,7 @@ export class App implements OnInit {
 
   onDialogHide() {
     this.formSubmitAttempted = false;
+    this.loginError.set(null);
     this.loginForm.reset();
     // this.loginForm.markAsPristine();
     // this.loginForm.markAsUntouched();
@@ -103,6 +163,7 @@ export class App implements OnInit {
     event.preventDefault();
     event.stopPropagation();
     this.loginDialogVisibility = false;
+    this.loginError.set(null);
 
     setTimeout(() => {
       this.loginForm.reset();
