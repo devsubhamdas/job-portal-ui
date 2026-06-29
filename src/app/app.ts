@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, computed, OnInit, signal } from '@angular/core';
 import { RouterOutlet, Router, RouterLinkWithHref } from '@angular/router';
 import { MenubarModule } from 'primeng/menubar';
 import { ButtonModule } from 'primeng/button';
@@ -30,15 +30,44 @@ import { AuthService } from './services/auth/auth.service';
 })
 export class App implements OnInit {
   protected readonly title = signal('client');
-  navbarItems: MenuItem[] | undefined;
+  navbarItems = computed<MenuItem[]>(() => {
+    const user = this.authService.user();
+    return [
+      {
+        label: 'Job Search',
+        icon: 'pi pi-briefcase',
+        routerLink: [''],
+        routerLinkActiveOptions: {
+          exact: true,
+        },
+      },
+      {
+        label: 'Applications',
+        icon: 'pi pi-envelope',
+        visible: !!user,
+        routerLink: ['/applications'],
+        routerLinkActiveOptions: {
+          exact: false,
+        },
+      },
+      {
+        label: 'Admin',
+        icon: 'pi pi-user',
+        visible: user?.role === 'ADMIN',
+        routerLink: ['/admin'],
+        routerLinkActiveOptions: {
+          exact: false,
+        },
+      },
+    ];
+  });
+
   profileMenuItems: MenuItem[] | undefined;
   loginDialogVisibility: boolean = false;
   loginForm: FormGroup;
   formSubmitAttempted = false;
-
   loginInProgress = signal<boolean>(false);
-  authUser: typeof this.authService.user;
-
+  readonly authUser: typeof this.authService.user;
   loginError = signal<{ field: string; message: string } | null>(null);
 
   constructor(
@@ -54,33 +83,6 @@ export class App implements OnInit {
   }
 
   ngOnInit() {
-    this.navbarItems = [
-      {
-        label: 'Job Search',
-        icon: 'pi pi-briefcase',
-        routerLink: [''],
-        routerLinkActiveOptions: {
-          exact: true,
-        },
-      },
-      {
-        label: 'Applications',
-        icon: 'pi pi-envelope',
-        routerLink: ['/applications'],
-        routerLinkActiveOptions: {
-          exact: false,
-        },
-      },
-      {
-        label: 'Admin',
-        icon: 'pi pi-user',
-        routerLink: ['/admin'],
-        routerLinkActiveOptions: {
-          exact: false,
-        },
-      },
-    ];
-
     this.profileMenuItems = [
       {
         label: 'Account',
@@ -105,7 +107,6 @@ export class App implements OnInit {
       next: (result) => {
         if (typeof result.loading === 'boolean') this.loginInProgress.set(result.loading);
         if (result.error) console.error(result.error);
-        this.authUser.set(this.authService.user());
         this.loginDialogVisibility = false;
         this.loginError.set(null);
       },

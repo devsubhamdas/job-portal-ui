@@ -7,6 +7,7 @@ import { tap } from 'rxjs';
   providedIn: 'root',
 })
 export class AuthService {
+  readonly authLoading = signal(true);
   readonly user = signal<{ id: string; name: string; email: string; role: string } | null>(null);
   private loginGQL = inject(LoginGQL);
   private logoutGQL = inject(LogoutGQL);
@@ -35,11 +36,16 @@ export class AuthService {
   private loadCurrentUser() {
     this.meGQL.fetch().subscribe({
       next: (result) => {
-        if (result.data) this.user.set(result.data.me);
-        if (result.error) this.user.set(null);
+        if (result.data) {
+          this.user.set(result.data.me);
+        } else {
+          this.user.set(null);
+        }
+        this.authLoading.set(false);
       },
       error: () => {
         this.user.set(null);
+        this.authLoading.set(false);
       },
     });
   }

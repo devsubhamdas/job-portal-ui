@@ -3,7 +3,7 @@
   <nav>
     <div class="bg-slate-200 flex items-center justify-between px-2.5">
       <a routerLink="/" class="text-xl text-gray-600">Job Portal</a>
-      <p-menubar [model]="navbarItems" class="bg-transparent rounded-none text-black p-0" />
+      <p-menubar [model]="navbarItems()" class="bg-transparent rounded-none text-black p-0" />
       <div>
         @if (authUser() === null) {
           <div>
@@ -19,7 +19,7 @@
           </div>
         } @else {
           <div>
-            <p-menu #profileMenu [model]="profileMenuItems" [popup]="true" />
+            <p-menu #profileMenu [model]="profileMenuItems" [popup]="true" appendTo="body" />
             <p-button
               (click)="profileMenu.toggle($event)"
               icon="pi pi-user"
