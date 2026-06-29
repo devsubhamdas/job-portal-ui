@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
@@ -11,6 +11,8 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { AuthService } from '../../services/auth/auth.service';
+import { Router } from '@angular/router';
 
 interface Role {
   label: string;
@@ -34,8 +36,14 @@ export class Signup implements OnInit {
   signupForm: FormGroup;
   roleOptions: Role[] = [];
   formSubmitAttempted: boolean = false;
+  signupError = signal<{ field: string; message: string } | null>(null);
+  signupInProgress = signal(false);
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router,
+  ) {
     this.signupForm = this.fb.group(
       {
         name: ['', [Validators.required]],
@@ -63,13 +71,42 @@ export class Signup implements OnInit {
     ];
   }
 
-  onSubmin(event: SubmitEvent) {
+  onSubmit(event: SubmitEvent) {
     this.formSubmitAttempted = true;
     if (this.signupForm.invalid) {
       return;
     }
 
-    console.log(this.signupForm.value);
+    const { name, email, password, role } = this.signupForm.getRawValue();
+    const payload = { name, email, password, role };
+    this.signupInProgress.set(true);
+
+    this.authService.signup(payload).subscribe({
+      next: (result) => {
+        if (result.data) {
+          // console.log(result.data);
+          this.signupError.set(null);
+          this.router.navigate(['/']);
+        }
+        if (result.error) {
+          console.error(result.error);
+        }
+
+        this.signupInProgress.set(false);
+      },
+      error: (err) => {
+        this.signupInProgress.set(false);
+        console.error(err);
+        if (
+          err.errors?.[0]?.message.includes('Unique constraint failed on the fields: (`email`)')
+        ) {
+          this.signupError.set({
+            field: 'email',
+            message: 'Email already exists',
+          });
+        }
+      },
+    });
   }
 
   isInvalid(controlName: string) {

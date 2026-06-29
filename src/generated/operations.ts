@@ -24,6 +24,13 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type MeQuery = { me: { id: string, name: string, email: string, role: Types.UserRole } | null };
 
+export type SignupMutationVariables = Exact<{
+  input: Types.SignupInput;
+}>;
+
+
+export type SignupMutation = { signup: { id: string, name: string, email: string, role: Types.UserRole } };
+
 export type SearchJobsQueryVariables = Exact<{
   input: Types.SearchJobsInput;
 }>;
@@ -84,6 +91,27 @@ export const MeDocument = gql`
   })
   export class MeGQL extends Apollo.Query<MeQuery, MeQueryVariables> {
     override document = MeDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const SignupDocument = gql`
+    mutation Signup($input: SignupInput!) {
+  signup(input: $input) {
+    id
+    name
+    email
+    role
+  }
+}
+    `;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class SignupGQL extends Apollo.Mutation<SignupMutation, SignupMutationVariables> {
+    override document = SignupDocument;
     
     constructor(apollo: Apollo.Apollo) {
       super(apollo);

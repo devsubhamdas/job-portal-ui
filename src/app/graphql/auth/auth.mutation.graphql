@@ -19,3 +19,12 @@ query Me {
     role
   }
 }
+
+mutation Signup($input: SignupInput!) {
+  signup(input: $input) {
+    id
+    name
+    email
+    role
+  }
+}

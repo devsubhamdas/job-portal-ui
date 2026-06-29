@@ -109,6 +109,9 @@ export class App implements OnInit {
         if (result.error) console.error(result.error);
         this.loginDialogVisibility = false;
         this.loginError.set(null);
+        if (this.router.url === '/signup') {
+          this.router.navigate(['/']);
+        }
       },
       error: (err) => {
         console.error(err);

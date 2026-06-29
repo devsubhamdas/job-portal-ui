@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { LoginGQL, LogoutGQL, MeGQL } from '../../../generated/operations';
-import { LoginInput } from '../../../generated/schema';
+import { LoginGQL, LogoutGQL, MeGQL, SignupGQL } from '../../../generated/operations';
+import { LoginInput, SignupInput } from '../../../generated/schema';
 import { tap } from 'rxjs';
 
 @Injectable({
@@ -12,6 +12,7 @@ export class AuthService {
   private loginGQL = inject(LoginGQL);
   private logoutGQL = inject(LogoutGQL);
   private meGQL = inject(MeGQL);
+  private signupGQL = inject(SignupGQL);
 
   constructor() {
     this.loadCurrentUser();
@@ -29,6 +30,14 @@ export class AuthService {
     return this.logoutGQL.mutate().pipe(
       tap((result) => {
         if (result.data?.logout === true) this.user.set(null);
+      }),
+    );
+  }
+
+  signup(payload: SignupInput) {
+    return this.signupGQL.mutate({ variables: { input: payload } }).pipe(
+      tap((result) => {
+        if (result.data) this.user.set(result.data.signup);
       }),
     );
   }

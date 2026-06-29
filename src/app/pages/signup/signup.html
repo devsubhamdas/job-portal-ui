@@ -1,8 +1,9 @@
+@let signupErr = signupError();
 <div class="py-20">
   <div class="w-md max-w-lg mx-auto">
     <div class="my-6"><h1 class="text-3xl">Sign-Up Form</h1></div>
     <div>
-      <form [formGroup]="signupForm" (ngSubmit)="onSubmin($event)">
+      <form [formGroup]="signupForm" (ngSubmit)="onSubmit($event)">
         <div class="flex flex-col gap-3">
           <div>
             <input
@@ -43,6 +44,8 @@
                   Please enter a valid email
                 }
               </small>
+            } @else if (signupErr && signupErr.field === 'email') {
+              <small class="text-red-500">{{ signupErr.message }}</small>
             }
           </div>
           <div>
@@ -106,7 +109,13 @@
             }
           </div>
           <div class="mt-4">
-            <p-button type="submit" label="Submit" severity="contrast" [fluid]="true" />
+            <p-button
+              type="submit"
+              label="Submit"
+              severity="contrast"
+              [fluid]="true"
+              [loading]="signupInProgress()"
+            />
           </div>
         </div>
       </form>
