@@ -1,4 +1,4 @@
-import { Component, computed, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, OnInit, signal } from '@angular/core';
 import { RouterOutlet, Router, RouterLinkWithHref } from '@angular/router';
 import { MenubarModule } from 'primeng/menubar';
 import { ButtonModule } from 'primeng/button';
@@ -10,6 +10,7 @@ import { PasswordModule } from 'primeng/password';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from './services/auth/auth.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
@@ -24,6 +25,7 @@ import { AuthService } from './services/auth/auth.service';
     InputTextModule,
     AutoFocusModule,
     RouterLinkWithHref,
+    CommonModule,
   ],
   templateUrl: './app.html',
   styleUrl: './app.css',

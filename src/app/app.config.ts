@@ -1,4 +1,10 @@
-import { ApplicationConfig, LOCALE_ID, provideBrowserGlobalErrorListeners } from '@angular/core';
+import {
+  ApplicationConfig,
+  inject,
+  LOCALE_ID,
+  provideAppInitializer,
+  provideBrowserGlobalErrorListeners,
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -11,6 +17,7 @@ import { registerLocaleData } from '@angular/common';
 import localeIn from '@angular/common/locales/en-IN';
 import { apolloProvider } from './core/graphql/apollo.provider';
 import { provideHttpClient, withFetch } from '@angular/common/http';
+import { AuthService } from './services/auth/auth.service';
 
 registerLocaleData(localeIn);
 
@@ -21,6 +28,10 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay()),
     provideHttpClient(withFetch()),
     apolloProvider,
+    provideAppInitializer(() => {
+      const auth = inject(AuthService);
+      return auth.loadCurrentUser();
+    }),
     { provide: LOCALE_ID, useValue: 'en-IN' },
     providePrimeNG({
       theme: {

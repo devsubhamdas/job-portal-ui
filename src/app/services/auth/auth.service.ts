@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { LoginGQL, LogoutGQL, MeGQL, SignupGQL } from '../../../generated/operations';
 import { LoginInput, SignupInput } from '../../../generated/schema';
-import { tap } from 'rxjs';
+import { firstValueFrom, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -13,10 +13,6 @@ export class AuthService {
   private logoutGQL = inject(LogoutGQL);
   private meGQL = inject(MeGQL);
   private signupGQL = inject(SignupGQL);
-
-  constructor() {
-    this.loadCurrentUser();
-  }
 
   login(payload: LoginInput) {
     return this.loginGQL.mutate({ variables: { input: payload } }).pipe(
@@ -42,20 +38,18 @@ export class AuthService {
     );
   }
 
-  private loadCurrentUser() {
-    this.meGQL.fetch().subscribe({
-      next: (result) => {
-        if (result.data) {
-          this.user.set(result.data.me);
-        } else {
-          this.user.set(null);
-        }
-        this.authLoading.set(false);
-      },
-      error: () => {
-        this.user.set(null);
-        this.authLoading.set(false);
-      },
-    });
+  async loadCurrentUser(): Promise<void> {
+    this.authLoading.set(true);
+
+    try {
+      const result = await firstValueFrom(this.meGQL.fetch());
+      if (result.data) {
+        this.user.set(result.data.me);
+      }
+    } catch (err) {
+      this.user.set(null);
+    } finally {
+      this.authLoading.set(false);
+    }
   }
 }
