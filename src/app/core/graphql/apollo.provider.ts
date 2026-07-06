@@ -10,13 +10,14 @@ export const apolloProvider = provideApollo(() => {
   const platformId = inject(PLATFORM_ID);
   const request = inject(REQUEST, { optional: true });
   const isServer = isPlatformServer(platformId);
-  const cookie = isServer ? request?.headers.get('cookie') : null;
+  const cookie = request?.headers.get('cookie') ?? null;
+  const headers = isServer && cookie ? new HttpHeaders({ cookie }) : undefined;
 
   return {
     link: httpLink.create({
       uri: 'http://localhost:8081/graphql',
       withCredentials: true,
-      headers: cookie ? new HttpHeaders({ cookie }) : undefined,
+      headers,
     }),
     cache: new InMemoryCache(),
   };
