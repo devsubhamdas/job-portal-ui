@@ -13,8 +13,19 @@
   </div>
   <!-- job listings -->
   <div>
-    <app-job-card [btnOption]="btnOption"></app-job-card>
-    <app-not-found-card></app-not-found-card>
+    @if (ownedJobsResultLoading()) {
+      <div class="flex items-center justify-center my-5">
+        <i class="pi pi-spin pi-spinner text-slate-300 text-3xl"></i>
+      </div>
+    } @else if (!ownedJobsResultLoading() && ownedJobsResult().length > 0) {
+      <div class="grid gap-3.5">
+        @for (job of ownedJobsResult(); track job.id) {
+          <app-job-card [data]="job" [btnOption]="btnOption"></app-job-card>
+        }
+      </div>
+    } @else {
+      <app-not-found-card></app-not-found-card>
+    }
   </div>
 
   <!-- create job dialog  -->
@@ -154,7 +165,13 @@
             </div>
           </div>
           <div class="mt-3.5">
-            <p-button type="submit" label="Create" severity="contrast" [fluid]="true" />
+            <p-button
+              type="submit"
+              label="Create"
+              severity="contrast"
+              [loading]="createJobInProgress()"
+              [fluid]="true"
+            />
           </div>
         </div>
       </form>

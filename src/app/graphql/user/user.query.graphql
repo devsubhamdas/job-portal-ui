@@ -1,0 +1,18 @@
+query OwnedJobs {
+  me {
+    ownedJobs {
+      id
+      title
+      description
+      location
+      salary
+      type
+      remote
+      createdAt
+      company {
+        id
+        name
+      }
+    }
+  }
+}

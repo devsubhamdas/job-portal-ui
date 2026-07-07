@@ -8,9 +8,11 @@ import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { AutoFocusModule } from 'primeng/autofocus';
+import { ToastModule } from 'primeng/toast';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from './services/auth/auth.service';
 import { CommonModule } from '@angular/common';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-root',
@@ -24,9 +26,11 @@ import { CommonModule } from '@angular/common';
     PasswordModule,
     InputTextModule,
     AutoFocusModule,
+    ToastModule,
     RouterLinkWithHref,
     CommonModule,
   ],
+  providers: [MessageService],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })

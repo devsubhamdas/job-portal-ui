@@ -67,12 +67,13 @@ export class JobSearch implements OnInit {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: ({ data, loading }) => {
-          this.searchResults.set(data);
+        next: ({ data, loading, error }) => {
           this.searchResultsLoading.set(loading);
+          if (data) this.searchResults.set(data);
+          if (error) console.error(error);
         },
         error: (err) => {
-          console.log(err.message);
+          console.error(err.message);
           this.searchResultsLoading.set(false);
         },
       });

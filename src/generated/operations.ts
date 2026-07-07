@@ -31,12 +31,24 @@ export type SignupMutationVariables = Exact<{
 
 export type SignupMutation = { signup: { id: string, name: string, email: string, role: Types.UserRole } };
 
+export type CreateJobMutationVariables = Exact<{
+  input: Types.CreateJobInput;
+}>;
+
+
+export type CreateJobMutation = { createJob: { id: string, title: string, description: string, type: Types.JobType, remote: boolean, company: { id: string, name: string } } };
+
 export type SearchJobsQueryVariables = Exact<{
   input: Types.SearchJobsInput;
 }>;
 
 
 export type SearchJobsQuery = { searchJobs: Array<{ id: string, title: string, description: string, location: string, salary: number, type: Types.JobType, remote: boolean, createdAt: Date, company: { id: string, name: string } }> };
+
+export type OwnedJobsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type OwnedJobsQuery = { me: { ownedJobs: Array<{ id: string, title: string, description: string, location: string, salary: number, type: Types.JobType, remote: boolean, createdAt: Date, company: { id: string, name: string } }> | null } | null };
 
 export const LoginDocument = gql`
     mutation Login($input: LoginInput!) {
@@ -117,6 +129,32 @@ export const SignupDocument = gql`
       super(apollo);
     }
   }
+export const CreateJobDocument = gql`
+    mutation CreateJob($input: CreateJobInput!) {
+  createJob(input: $input) {
+    id
+    title
+    description
+    company {
+      id
+      name
+    }
+    type
+    remote
+  }
+}
+    `;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class CreateJobGQL extends Apollo.Mutation<CreateJobMutation, CreateJobMutationVariables> {
+    override document = CreateJobDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
 export const SearchJobsDocument = gql`
     query SearchJobs($input: SearchJobsInput!) {
   searchJobs(input: $input) {
@@ -141,6 +179,37 @@ export const SearchJobsDocument = gql`
   })
   export class SearchJobsGQL extends Apollo.Query<SearchJobsQuery, SearchJobsQueryVariables> {
     override document = SearchJobsDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const OwnedJobsDocument = gql`
+    query OwnedJobs {
+  me {
+    ownedJobs {
+      id
+      title
+      description
+      location
+      salary
+      type
+      remote
+      createdAt
+      company {
+        id
+        name
+      }
+    }
+  }
+}
+    `;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class OwnedJobsGQL extends Apollo.Query<OwnedJobsQuery, OwnedJobsQueryVariables> {
+    override document = OwnedJobsDocument;
     
     constructor(apollo: Apollo.Apollo) {
       super(apollo);

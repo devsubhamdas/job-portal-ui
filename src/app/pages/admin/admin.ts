@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { BtnSeverity, BtnSize, JobCard } from '../../components/job-card/job-card';
 import { ButtonModule } from 'primeng/button';
 import { NotFoundCard } from '../../components/not-found-card/not-found-card';
@@ -10,6 +10,12 @@ import { TextareaModule } from 'primeng/textarea';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { RadioButtonModule } from 'primeng/radiobutton';
+import { JobService } from '../../services/job/job.service';
+import { MessageService } from 'primeng/api';
+import { UserService } from '../../services/user/user.service';
+import { OwnedJobsQuery } from '../../../generated/operations';
+
+type Job = NonNullable<NonNullable<OwnedJobsQuery['me']>['ownedJobs']>[number];
 
 interface JobType {
   label: string;
@@ -41,7 +47,16 @@ export class Admin implements OnInit {
   formSubmitAttempted: boolean = false;
   jobTypeOptions: JobType[] = [];
 
-  constructor(private fb: FormBuilder) {
+  ownedJobsResult = signal<Job[]>([]);
+  ownedJobsResultLoading = signal(false);
+  createJobInProgress = signal<boolean>(false);
+
+  constructor(
+    private fb: FormBuilder,
+    private jobService: JobService,
+    private userService: UserService,
+    private messageService: MessageService,
+  ) {
     this.createJobForm = this.fb.group({
       title: ['', Validators.required],
       description: ['', Validators.required],
@@ -57,17 +72,19 @@ export class Admin implements OnInit {
     this.jobTypeOptions = [
       {
         label: 'Full-time',
-        value: 'FULL-TIME',
+        value: 'FULL_TIME',
       },
       {
         label: 'Part-time',
-        value: 'PART-TIME',
+        value: 'PART_TIME',
       },
       {
         label: 'Internship',
         value: 'INTERNSHIP',
       },
     ];
+
+    this.fetchOwnedJobs();
   }
 
   onSubmit(event: SubmitEvent) {
@@ -77,7 +94,51 @@ export class Admin implements OnInit {
       return;
     }
 
-    console.log(this.createJobForm.value);
+    const payload = this.createJobForm.getRawValue();
+    this.createJobInProgress.set(true);
+    this.jobService.create(payload).subscribe({
+      next: ({ data, error, loading }) => {
+        this.createJobInProgress.set(loading);
+        if (data) {
+          this.createJobForm.reset();
+          this.createJobDialogVisibility = false;
+          this.messageService.add({
+            severity: 'info',
+            summary: 'Success',
+            detail: 'Job Created',
+          });
+          this.fetchOwnedJobs();
+        }
+        if (error) {
+          console.error(error);
+        }
+      },
+      error: (err) => {
+        console.error(err);
+        this.createJobInProgress.set(false);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to create job',
+        });
+      },
+    });
+  }
+
+  fetchOwnedJobs() {
+    this.ownedJobsResultLoading.set(true);
+    this.userService.ownedJobs().subscribe({
+      next: ({ data, error }) => {
+        if (data) this.ownedJobsResult.set(data);
+        if (error) console.error(error);
+        console.log(data);
+        this.ownedJobsResultLoading.set(false);
+      },
+      error: (err) => {
+        console.error(err);
+        this.ownedJobsResultLoading.set(false);
+      },
+    });
   }
 
   showCreateJobDialog() {
