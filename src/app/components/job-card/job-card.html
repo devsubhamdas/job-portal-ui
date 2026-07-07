@@ -13,11 +13,11 @@
       </div>
       <!-- job details  -->
       <div class="grow">
-        <h1 class="text-xl font-medium">{{ job.title || 'Job Title' }}</h1>
+        <h1 class="text-xl font-medium">{{ job.title || '' }}</h1>
         <div class="text-sm font-semibold text-slate-400 flex items-center gap-1">
-          <span>{{ job.company.name || 'Company' }}</span>
+          <span>{{ job.company.name || '' }}</span>
           <i class="pi pi-circle-fill text-[4px]"></i>
-          <span> {{ job.location || 'Job Location' }}</span>
+          <span> {{ job.location || '' }}</span>
         </div>
       </div>
       <!-- other details  -->
@@ -32,6 +32,7 @@
         <p-tag class="font-medium" severity="success" [value]="mapJobType(job.type)" />
         <p-tag class="font-medium" severity="info" [value]="job.remote ? 'Remote' : 'In-Person'" />
       </div>
+      <div class="mt-2 text-base">{{ job.description || '' }}</div>
     </div>
 
     <!-- bottom section  -->
