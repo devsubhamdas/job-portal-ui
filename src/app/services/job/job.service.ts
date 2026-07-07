@@ -13,7 +13,12 @@ export class JobService {
 
   search(query: string) {
     return this.searchJobsGQL
-      .watch({ variables: { input: { query } } })
-      .valueChanges.pipe(map((result) => (result.data?.searchJobs ?? []) as Job[]));
+      .watch({ variables: { input: { query } }, fetchPolicy: 'network-only' })
+      .valueChanges.pipe(
+        map((result) => ({
+          data: (result.data?.searchJobs ?? []) as Job[],
+          loading: result.loading,
+        })),
+      );
   }
 }

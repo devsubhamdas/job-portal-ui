@@ -5,6 +5,11 @@ import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { CurrencyPipe } from '@angular/common';
+import { TimeAgoPipe } from '../../pipes/time-ago/time-ago-pipe';
+import { SearchJobsQuery } from '../../../generated/operations';
+import { JobType } from '../../../generated/schema';
+
+type Job = SearchJobsQuery['searchJobs'][number];
 
 export enum BtnSeverity {
   Primary = 'primary',
@@ -40,12 +45,20 @@ interface BtnOption {
 
 @Component({
   selector: 'app-job-card',
-  imports: [IconFieldModule, InputIconModule, CardModule, TagModule, ButtonModule, CurrencyPipe],
+  imports: [
+    IconFieldModule,
+    InputIconModule,
+    CardModule,
+    TagModule,
+    ButtonModule,
+    CurrencyPipe,
+    TimeAgoPipe,
+  ],
   templateUrl: './job-card.html',
   styleUrl: './job-card.css',
 })
 export class JobCard {
-  jobInfo = input();
+  data = input.required<Job>();
   btnOption = input<BtnOption>({
     label: 'Click',
     icon: '',
@@ -57,4 +70,29 @@ export class JobCard {
     disabled: false,
   });
   onBtnAction = output<void>();
+
+  mapJobType(type: string) {
+    switch (type) {
+      case JobType.FullTime:
+        return 'Full-Time';
+
+      case JobType.Internship:
+        return 'Internship';
+
+      case JobType.PartTime:
+        return 'Part-Time';
+
+      default:
+        return undefined;
+    }
+  }
+
+  titleToInitials(title: string) {
+    return title
+      .split(' ')
+      .map((word) => word[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
+  }
 }

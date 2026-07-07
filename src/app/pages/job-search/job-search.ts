@@ -6,7 +6,16 @@ import { InputIconModule } from 'primeng/inputicon';
 import { BtnSeverity, BtnSize, BtnVariant } from '../../components/job-card/job-card';
 import { NotFoundCard } from '../../components/not-found-card/not-found-card';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, filter, of, switchMap } from 'rxjs';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  EMPTY,
+  filter,
+  finalize,
+  of,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { JobService } from '../../services/job/job.service';
 import { SearchJobsQuery } from '../../../generated/operations';
@@ -43,23 +52,29 @@ export class JobSearch implements OnInit {
   ngOnInit(): void {
     this.searchControl.valueChanges
       .pipe(
+        tap(() => this.searchResultsLoading.set(true)),
         debounceTime(400),
         distinctUntilChanged(),
-        filter((query) => !!query && query.length >= 2),
         switchMap((query) => {
           const term = query?.trim() ?? '';
-          this.searchResultsLoading.set(true);
+          if (!term || term.length < 2) {
+            this.searchResults.set([]);
+            this.searchResultsLoading.set(false);
+            return EMPTY;
+          }
           return this.jobService.search(term);
         }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: (data) => {
-          this.searchResultsLoading.set(false);
+        next: ({ data, loading }) => {
           this.searchResults.set(data);
-          console.log(data);
+          this.searchResultsLoading.set(loading);
         },
-        error: (err) => console.log(err.message),
+        error: (err) => {
+          console.log(err.message);
+          this.searchResultsLoading.set(false);
+        },
       });
   }
 

@@ -16,14 +16,21 @@
   </div>
 
   <!-- search results section -->
-  <div class="grid gap-3.5">
-    <app-job-card [btnOption]="btnOption" (onBtnAction)="handleClick()"></app-job-card>
-    <!-- to be deleted -->
-    <app-job-card [btnOption]="btnOption"></app-job-card>
-    <app-job-card [btnOption]="btnOption"></app-job-card>
-  </div>
+  @if (!searchResultsLoading()) {
+    <div class="grid gap-3.5">
+      @for (job of searchResults(); track job.id) {
+        <app-job-card
+          [data]="job"
+          [btnOption]="btnOption"
+          (onBtnAction)="handleClick()"
+        ></app-job-card>
+      }
+    </div>
+  }
 
-  <div>
-    <app-not-found-card content="No Jobs found."></app-not-found-card>
-  </div>
+  @if (searchControl.value && !searchResultsLoading() && searchResults().length === 0) {
+    <div>
+      <app-not-found-card content="No Jobs found."></app-not-found-card>
+    </div>
+  }
 </div>

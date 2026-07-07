@@ -1,3 +1,4 @@
+@let job = data();
 <p-card>
   <div class="grid gap-3">
     <!-- top section  -->
@@ -7,28 +8,29 @@
         <div
           class="w-12 aspect-square flex items-center justify-center border border-slate-500 rounded-full"
         >
-          <span>AU</span>
+          <span>{{ titleToInitials(job.title) || 'JT' }}</span>
         </div>
       </div>
       <!-- job details  -->
       <div class="grow">
-        <h1 class="text-xl font-medium">Job Title</h1>
-        <div class="text-sm text-slate-600">
-          <span>Company</span>
-          <span> West Bengal, IN</span>
+        <h1 class="text-xl font-medium">{{ job.title || 'Job Title' }}</h1>
+        <div class="text-sm font-semibold text-slate-400 flex items-center gap-1">
+          <span>{{ job.company.name || 'Company' }}</span>
+          <i class="pi pi-circle-fill text-[4px]"></i>
+          <span> {{ job.location || 'Job Location' }}</span>
         </div>
       </div>
       <!-- other details  -->
       <div class="self-start">
-        <span class="text-sm text-slate-400">Posted 15 minutes ago</span>
+        <span class="text-sm text-slate-400">{{ job.createdAt | timeAgo }}</span>
       </div>
     </div>
 
     <!-- mid section  -->
     <div>
       <div class="flex items-center justify-start gap-2">
-        <p-tag class="font-medium" severity="success" value="Full-Time" />
-        <p-tag class="font-medium" severity="info" value="In-Person" />
+        <p-tag class="font-medium" severity="success" [value]="mapJobType(job.type)" />
+        <p-tag class="font-medium" severity="info" [value]="job.remote ? 'Remote' : 'In-Person'" />
       </div>
     </div>
 
@@ -38,7 +40,7 @@
         <div>
           <p>
             <span class="text-lg font-medium">{{
-              25000 | currency: 'INR' : 'symbol' : '1.0-0' : 'en-IN'
+              job.salary | currency: 'INR' : 'symbol' : '1.0-0' : 'en-IN'
             }}</span>
             <span class="text-sm text-slate-400">/month </span>
           </p>

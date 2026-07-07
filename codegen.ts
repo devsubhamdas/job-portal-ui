@@ -14,6 +14,9 @@ const config: CodegenConfig = {
         useTypeImports: true,
         addExplicitOverride: true,
         enumsAsTypes: true,
+        scalars: {
+          DateTime: 'Date',
+        },
       },
     },
   },

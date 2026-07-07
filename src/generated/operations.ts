@@ -36,7 +36,7 @@ export type SearchJobsQueryVariables = Exact<{
 }>;
 
 
-export type SearchJobsQuery = { searchJobs: Array<{ id: string, title: string, description: string, location: string, salary: number, type: Types.JobType, remote: boolean, createdAt: unknown, company: { id: string, name: string } }> };
+export type SearchJobsQuery = { searchJobs: Array<{ id: string, title: string, description: string, location: string, salary: number, type: Types.JobType, remote: boolean, createdAt: Date, company: { id: string, name: string } }> };
 
 export const LoginDocument = gql`
     mutation Login($input: LoginInput!) {
