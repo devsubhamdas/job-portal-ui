@@ -107,8 +107,10 @@ export type MutationSignupArgs = {
 
 export type Query = {
   __typename?: 'Query';
+  appliedJobs: Array<Job>;
   getCompanies: Array<Company>;
   me?: Maybe<User>;
+  ownedJobs: Array<Job>;
   searchJobs: Array<Job>;
 };
 

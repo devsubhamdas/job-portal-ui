@@ -14,8 +14,9 @@ import { JobService } from '../../services/job/job.service';
 import { MessageService } from 'primeng/api';
 import { UserService } from '../../services/user/user.service';
 import { OwnedJobsQuery } from '../../../generated/operations';
+import { finalize } from 'rxjs';
 
-type Job = NonNullable<NonNullable<OwnedJobsQuery['me']>['ownedJobs']>[number];
+type Job = NonNullable<OwnedJobsQuery['ownedJobs']>[number];
 
 interface JobType {
   label: string;
@@ -127,18 +128,18 @@ export class Admin implements OnInit {
 
   fetchOwnedJobs() {
     this.ownedJobsResultLoading.set(true);
-    this.userService.ownedJobs().subscribe({
-      next: ({ data, error }) => {
-        if (data) this.ownedJobsResult.set(data);
-        if (error) console.error(error);
-        console.log(data);
-        this.ownedJobsResultLoading.set(false);
-      },
-      error: (err) => {
-        console.error(err);
-        this.ownedJobsResultLoading.set(false);
-      },
-    });
+    this.userService
+      .ownedJobs()
+      .pipe(finalize(() => this.ownedJobsResultLoading.set(false)))
+      .subscribe({
+        next: ({ data, error }) => {
+          if (data) this.ownedJobsResult.set(data);
+          if (error) console.error(error);
+        },
+        error: (err) => {
+          console.error(err);
+        },
+      });
   }
 
   showCreateJobDialog() {

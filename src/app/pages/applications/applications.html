@@ -1,3 +1,4 @@
+@let user = authUser();
 <div class="grid gap-8 my-14 mx-auto max-w-5xl">
   <div>
     <!-- profile  -->
@@ -8,8 +9,8 @@
         <span class="text-2xl">AU</span>
       </div>
       <div>
-        <div class="text-xl font-medium">Admin User</div>
-        <p class="text-sm text-slate-500">admin@example.com</p>
+        <div class="text-xl font-medium">{{ user?.name || '' }}</div>
+        <p class="text-sm text-slate-500">{{ user?.email || '' }}</p>
       </div>
     </div>
 
@@ -19,7 +20,9 @@
         <!-- label  -->
         <div><span class="text-slate-400">Full Name</span></div>
         <!-- value  -->
-        <div><span>Admin User</span></div>
+        <div>
+          <span>{{ user?.name || '' }}</span>
+        </div>
 
         <!-- divider -->
         <div class="col-span-2">
@@ -29,7 +32,7 @@
         <!-- label  -->
         <div class="text-slate-400">Email</div>
         <!-- value  -->
-        <div>admin@example.com</div>
+        <div>{{ user?.email || '' }}</div>
       </div>
     </div>
   </div>
@@ -37,13 +40,20 @@
   <!-- applications  -->
   <div>
     <div class="my-4"><span class="text-lg font-medium">Applications</span></div>
-    <div class="grid gap-3.5">
-      <app-job-card [btnOption]="btnOption"></app-job-card>
-      <app-job-card [btnOption]="btnOption"></app-job-card>
-      <app-job-card [btnOption]="btnOption"></app-job-card>
-    </div>
-    <div>
-      <app-not-found-card></app-not-found-card>
-    </div>
+    @if (appliedJobsResultLoading()) {
+      <div class="flex items-center justify-center my-5">
+        <i class="pi pi-spin pi-spinner text-slate-300 text-3xl"></i>
+      </div>
+    } @else if (!appliedJobsResultLoading() && appliedJobsResult().length > 0) {
+      <div class="grid gap-3.5">
+        @for (job of appliedJobsResult(); track job.id) {
+          <app-job-card [data]="job" [btnOption]="btnOption"></app-job-card>
+        }
+      </div>
+    } @else {
+      <div>
+        <app-not-found-card></app-not-found-card>
+      </div>
+    }
   </div>
 </div>
