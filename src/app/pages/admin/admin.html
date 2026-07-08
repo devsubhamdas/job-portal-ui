@@ -20,7 +20,11 @@
     } @else if (!ownedJobsResultLoading() && ownedJobsResult().length > 0) {
       <div class="grid gap-3.5">
         @for (job of ownedJobsResult(); track job.id) {
-          <app-job-card [data]="job" [btnOption]="btnOption"></app-job-card>
+          <app-job-card
+            [data]="job"
+            [btnOption]="btnOption"
+            (onBtnAction)="confirmDeleteJob(job.id)"
+          ></app-job-card>
         }
       </div>
     } @else {

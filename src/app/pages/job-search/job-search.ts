@@ -6,19 +6,12 @@ import { InputIconModule } from 'primeng/inputicon';
 import { BtnSeverity, BtnSize, BtnVariant } from '../../components/job-card/job-card';
 import { NotFoundCard } from '../../components/not-found-card/not-found-card';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import {
-  debounceTime,
-  distinctUntilChanged,
-  EMPTY,
-  filter,
-  finalize,
-  of,
-  switchMap,
-  tap,
-} from 'rxjs';
+import { debounceTime, distinctUntilChanged, EMPTY, finalize, switchMap, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { JobService } from '../../services/job/job.service';
 import { SearchJobsQuery } from '../../../generated/operations';
+import { ConfirmationService, MessageService } from 'primeng/api';
+
 type Job = SearchJobsQuery['searchJobs'][number];
 
 @Component({
@@ -35,10 +28,16 @@ type Job = SearchJobsQuery['searchJobs'][number];
   styleUrl: './job-search.css',
 })
 export class JobSearch implements OnInit {
+  applyForJobInProgress = signal(false);
   readonly BtnSeverity = BtnSeverity;
   readonly BtnSize = BtnSize;
   readonly BtnVariant = BtnVariant;
-  btnOption = { label: 'Apply', size: BtnSize.Small, severity: BtnSeverity.Secondary };
+
+  btnOption = {
+    label: 'Apply',
+    size: BtnSize.Small,
+    severity: BtnSeverity.Secondary,
+  };
 
   searchControl = new FormControl('');
   searchResultsLoading = signal<boolean>(false);
@@ -47,6 +46,8 @@ export class JobSearch implements OnInit {
   constructor(
     private jobService: JobService,
     private destroyRef: DestroyRef,
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService,
   ) {}
 
   ngOnInit(): void {
@@ -79,7 +80,61 @@ export class JobSearch implements OnInit {
       });
   }
 
-  handleClick() {
-    console.log('hello');
+  handleApplyForJob(id: string) {
+    this.applyForJobInProgress.set(true);
+    this.jobService
+      .apply({ id })
+      .pipe(finalize(() => this.applyForJobInProgress.set(false)))
+      .subscribe({
+        next: ({ data, loading, error }) => {
+          this.applyForJobInProgress.set(loading);
+          if (data) {
+            this.messageService.add({
+              severity: 'info',
+              summary: 'Success',
+              detail: 'Application Submitted',
+            });
+          }
+          if (error) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Failed to submit application',
+            });
+            console.error(error);
+          }
+        },
+        error: (err) => {
+          console.error(err);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to submit application',
+          });
+        },
+      });
+  }
+
+  confirmApplyForJob(id: string) {
+    this.confirmationService.confirm({
+      header: 'Apply for Job',
+      message: 'Are you sure you want to apply for this job?',
+      icon: 'pi pi-exclamation-circle',
+      rejectButtonProps: {
+        label: 'Close',
+        severity: 'secondary',
+        outlined: true,
+        size: 'small',
+      },
+      acceptButtonProps: {
+        label: 'Apply',
+        severity: 'contrast',
+        size: 'small',
+      },
+
+      accept: () => {
+        this.handleApplyForJob(id);
+      },
+    });
   }
 }

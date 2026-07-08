@@ -11,3 +11,15 @@ mutation CreateJob($input: CreateJobInput!) {
     remote
   }
 }
+
+mutation ApplyForJob($input: ApplyForJobInput!) {
+  applyForJob(input: $input)
+}
+
+mutation CancelJobApplication($input: CancleJobApplicationInput!) {
+  cancelJobApplication(input: $input)
+}
+
+mutation DeleteJob($input: DeleteJobInput!) {
+  deleteJob(input: $input)
+}

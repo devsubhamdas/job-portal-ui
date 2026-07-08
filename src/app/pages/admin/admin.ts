@@ -11,7 +11,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { JobService } from '../../services/job/job.service';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { UserService } from '../../services/user/user.service';
 import { OwnedJobsQuery } from '../../../generated/operations';
 import { finalize } from 'rxjs';
@@ -42,7 +42,12 @@ interface JobType {
   styleUrl: './admin.css',
 })
 export class Admin implements OnInit {
-  btnOption = { label: 'Remove', size: BtnSize.Small, severity: BtnSeverity.Danger };
+  deleteJobInProgress = signal(false);
+  btnOption = {
+    label: 'Remove',
+    size: BtnSize.Small,
+    severity: BtnSeverity.Danger,
+  };
   createJobDialogVisibility: boolean = false;
   createJobForm: FormGroup;
   formSubmitAttempted: boolean = false;
@@ -57,6 +62,7 @@ export class Admin implements OnInit {
     private jobService: JobService,
     private userService: UserService,
     private messageService: MessageService,
+    private confirmationService: ConfirmationService,
   ) {
     this.createJobForm = this.fb.group({
       title: ['', Validators.required],
@@ -140,6 +146,65 @@ export class Admin implements OnInit {
           console.error(err);
         },
       });
+  }
+
+  handleDeleteJob(id: string) {
+    this.deleteJobInProgress.set(true);
+    this.jobService
+      .delete({ id })
+      .pipe(finalize(() => this.deleteJobInProgress.set(false)))
+      .subscribe({
+        next: ({ data, error, loading }) => {
+          this.deleteJobInProgress.set(loading);
+          if (data) {
+            this.messageService.add({
+              severity: 'info',
+              summary: 'Success',
+              detail: 'Job Deleted',
+            });
+            this.fetchOwnedJobs();
+          }
+          if (error) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Failed to delete job',
+            });
+            console.error(error);
+          }
+        },
+        error: (err) => {
+          console.error(err);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to delete job',
+          });
+        },
+      });
+  }
+
+  confirmDeleteJob(id: string) {
+    this.confirmationService.confirm({
+      header: 'Delete Job Post',
+      message: 'Are you sure you want to delete this job post?',
+      icon: 'pi pi-exclamation-circle',
+      rejectButtonProps: {
+        label: 'Close',
+        severity: 'secondary',
+        outlined: true,
+        size: 'small',
+      },
+      acceptButtonProps: {
+        label: 'Confirm',
+        severity: 'danger',
+        size: 'small',
+      },
+
+      accept: () => {
+        this.handleDeleteJob(id);
+      },
+    });
   }
 
   showCreateJobDialog() {

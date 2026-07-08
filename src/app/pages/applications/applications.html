@@ -47,7 +47,11 @@
     } @else if (!appliedJobsResultLoading() && appliedJobsResult().length > 0) {
       <div class="grid gap-3.5">
         @for (job of appliedJobsResult(); track job.id) {
-          <app-job-card [data]="job" [btnOption]="btnOption"></app-job-card>
+          <app-job-card
+            [data]="job"
+            [btnOption]="btnOption"
+            (onBtnAction)="confirmCancelJobApplication(job.id)"
+          ></app-job-card>
         }
       </div>
     } @else {

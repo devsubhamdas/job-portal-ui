@@ -22,8 +22,12 @@
       @for (job of searchResults(); track job.id) {
         <app-job-card
           [data]="job"
-          [btnOption]="btnOption"
-          (onBtnAction)="handleClick()"
+          [btnOption]="{
+            ...btnOption,
+            label: job.isApplied ? 'Applied' : 'Apply',
+            disabled: !!job.isApplied,
+          }"
+          (onBtnAction)="confirmApplyForJob(job.id)"
         ></app-job-card>
       }
     </div>

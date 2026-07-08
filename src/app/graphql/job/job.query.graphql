@@ -7,6 +7,7 @@ query SearchJobs($input: SearchJobsInput!) {
     salary
     type
     remote
+    isApplied
     createdAt
     company {
       id

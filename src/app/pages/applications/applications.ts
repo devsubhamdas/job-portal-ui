@@ -6,6 +6,8 @@ import { UserService } from '../../services/user/user.service';
 import { AppliedJobsQuery } from '../../../generated/operations';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../services/auth/auth.service';
+import { JobService } from '../../services/job/job.service';
+import { ConfirmationService, MessageService } from 'primeng/api';
 
 type Job = NonNullable<AppliedJobsQuery['appliedJobs']>[number];
 
@@ -16,7 +18,12 @@ type Job = NonNullable<AppliedJobsQuery['appliedJobs']>[number];
   styleUrl: './applications.css',
 })
 export class Applications implements OnInit {
-  btnOption = { label: 'Cancel', size: BtnSize.Small, severity: BtnSeverity.Secondary };
+  cancelJobApplicationInProgress = signal(false);
+  btnOption = {
+    label: 'Cancel',
+    size: BtnSize.Small,
+    severity: BtnSeverity.Secondary,
+  };
 
   appliedJobsResultLoading = signal(false);
   appliedJobsResult = signal<Job[]>([]);
@@ -25,6 +32,9 @@ export class Applications implements OnInit {
   constructor(
     private authService: AuthService,
     private userService: UserService,
+    private jobService: JobService,
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService,
   ) {
     this.authUser = this.authService.user;
   }
@@ -52,5 +62,64 @@ export class Applications implements OnInit {
           console.error(err);
         },
       });
+  }
+
+  handleCancelJobApplication(id: string) {
+    this.cancelJobApplicationInProgress.set(true);
+    this.jobService
+      .cancel({ id })
+      .pipe(finalize(() => this.cancelJobApplicationInProgress.set(false)))
+      .subscribe({
+        next: ({ data, error, loading }) => {
+          this.cancelJobApplicationInProgress.set(loading);
+          if (data) {
+            this.messageService.add({
+              severity: 'info',
+              summary: 'Success',
+              detail: 'Application Cancelled',
+            });
+            this.fetchAppliedJobs();
+          }
+          if (error) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Failed to cancel application',
+            });
+            console.error(error);
+          }
+        },
+        error: (err) => {
+          console.error(err);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to cancel application',
+          });
+        },
+      });
+  }
+
+  confirmCancelJobApplication(id: string) {
+    this.confirmationService.confirm({
+      header: 'Cancel Job Application',
+      message: 'Are you sure you want to cancel this job application?',
+      icon: 'pi pi-exclamation-circle',
+      rejectButtonProps: {
+        label: 'Close',
+        severity: 'secondary',
+        outlined: true,
+        size: 'small',
+      },
+      acceptButtonProps: {
+        label: 'Proceed',
+        severity: 'danger',
+        size: 'small',
+      },
+
+      accept: () => {
+        this.handleCancelJobApplication(id);
+      },
+    });
   }
 }

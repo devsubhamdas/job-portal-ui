@@ -38,12 +38,33 @@ export type CreateJobMutationVariables = Exact<{
 
 export type CreateJobMutation = { createJob: { id: string, title: string, description: string, type: Types.JobType, remote: boolean, company: { id: string, name: string } } };
 
+export type ApplyForJobMutationVariables = Exact<{
+  input: Types.ApplyForJobInput;
+}>;
+
+
+export type ApplyForJobMutation = { applyForJob: boolean };
+
+export type CancelJobApplicationMutationVariables = Exact<{
+  input: Types.CancleJobApplicationInput;
+}>;
+
+
+export type CancelJobApplicationMutation = { cancelJobApplication: boolean };
+
+export type DeleteJobMutationVariables = Exact<{
+  input: Types.DeleteJobInput;
+}>;
+
+
+export type DeleteJobMutation = { deleteJob: boolean };
+
 export type SearchJobsQueryVariables = Exact<{
   input: Types.SearchJobsInput;
 }>;
 
 
-export type SearchJobsQuery = { searchJobs: Array<{ id: string, title: string, description: string, location: string, salary: number, type: Types.JobType, remote: boolean, createdAt: Date, company: { id: string, name: string } }> };
+export type SearchJobsQuery = { searchJobs: Array<{ id: string, title: string, description: string, location: string, salary: number, type: Types.JobType, remote: boolean, isApplied: boolean | null, createdAt: Date, company: { id: string, name: string } }> };
 
 export type OwnedJobsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -160,6 +181,54 @@ export const CreateJobDocument = gql`
       super(apollo);
     }
   }
+export const ApplyForJobDocument = gql`
+    mutation ApplyForJob($input: ApplyForJobInput!) {
+  applyForJob(input: $input)
+}
+    `;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class ApplyForJobGQL extends Apollo.Mutation<ApplyForJobMutation, ApplyForJobMutationVariables> {
+    override document = ApplyForJobDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const CancelJobApplicationDocument = gql`
+    mutation CancelJobApplication($input: CancleJobApplicationInput!) {
+  cancelJobApplication(input: $input)
+}
+    `;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class CancelJobApplicationGQL extends Apollo.Mutation<CancelJobApplicationMutation, CancelJobApplicationMutationVariables> {
+    override document = CancelJobApplicationDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const DeleteJobDocument = gql`
+    mutation DeleteJob($input: DeleteJobInput!) {
+  deleteJob(input: $input)
+}
+    `;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class DeleteJobGQL extends Apollo.Mutation<DeleteJobMutation, DeleteJobMutationVariables> {
+    override document = DeleteJobDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
 export const SearchJobsDocument = gql`
     query SearchJobs($input: SearchJobsInput!) {
   searchJobs(input: $input) {
@@ -170,6 +239,7 @@ export const SearchJobsDocument = gql`
     salary
     type
     remote
+    isApplied
     createdAt
     company {
       id

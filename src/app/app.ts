@@ -2,7 +2,7 @@ import { Component, computed, effect, OnInit, signal } from '@angular/core';
 import { RouterOutlet, Router, RouterLinkWithHref } from '@angular/router';
 import { MenubarModule } from 'primeng/menubar';
 import { ButtonModule } from 'primeng/button';
-import { MenuItem } from 'primeng/api';
+import { ConfirmationService, MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
@@ -13,6 +13,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { AuthService } from './services/auth/auth.service';
 import { CommonModule } from '@angular/common';
 import { MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'app-root',
@@ -27,10 +28,11 @@ import { MessageService } from 'primeng/api';
     InputTextModule,
     AutoFocusModule,
     ToastModule,
+    ConfirmDialogModule,
     RouterLinkWithHref,
     CommonModule,
   ],
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })

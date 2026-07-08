@@ -6,10 +6,13 @@ import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { CurrencyPipe } from '@angular/common';
 import { TimeAgoPipe } from '../../pipes/time-ago/time-ago-pipe';
-import { SearchJobsQuery } from '../../../generated/operations';
+import { AppliedJobsQuery, OwnedJobsQuery, SearchJobsQuery } from '../../../generated/operations';
 import { JobType } from '../../../generated/schema';
 
-type Job = SearchJobsQuery['searchJobs'][number];
+type Job =
+  | NonNullable<SearchJobsQuery['searchJobs']>[number]
+  | NonNullable<AppliedJobsQuery['appliedJobs']>[number]
+  | NonNullable<OwnedJobsQuery['ownedJobs']>[number];
 
 export enum BtnSeverity {
   Primary = 'primary',
@@ -40,6 +43,7 @@ interface BtnOption {
   variant?: BtnVariant | undefined;
   raised?: boolean;
   rounded?: boolean;
+  loading?: boolean;
   disabled?: boolean;
 }
 
@@ -67,6 +71,7 @@ export class JobCard {
     size: undefined,
     raised: false,
     rounded: false,
+    loading: false,
     disabled: false,
   });
   onBtnAction = output<void>();
