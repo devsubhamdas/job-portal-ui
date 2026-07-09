@@ -103,6 +103,7 @@ export class JobSearch implements OnInit {
             });
             console.error(error);
           }
+          this.jobService.refetchSearch();
         },
         error: (err) => {
           console.error(err);

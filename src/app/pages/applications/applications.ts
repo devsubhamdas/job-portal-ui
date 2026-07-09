@@ -54,7 +54,6 @@ export class Applications implements OnInit {
       )
       .subscribe({
         next: ({ data, error }) => {
-          console.log(data);
           if (data) this.appliedJobsResult.set(data);
           if (error) console.error(error);
         },

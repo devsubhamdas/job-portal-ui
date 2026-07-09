@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { Apollo, gql } from 'apollo-angular';
-import { map, Observable, tap } from 'rxjs';
+import { QueryRef } from 'apollo-angular';
+import { map } from 'rxjs';
 import {
   ApplyForJobGQL,
   CancelJobApplicationGQL,
@@ -8,6 +8,7 @@ import {
   DeleteJobGQL,
   SearchJobsGQL,
   SearchJobsQuery,
+  SearchJobsQueryVariables,
 } from '../../../generated/operations';
 import {
   ApplyForJobInput,
@@ -28,16 +29,25 @@ export class JobService {
   private cancelJobApplicationGQL = inject(CancelJobApplicationGQL);
   private deleteJobGQL = inject(DeleteJobGQL);
 
+  private searchQueryRef?: QueryRef<SearchJobsQuery, SearchJobsQueryVariables>;
+
   search(query: string) {
-    return this.searchJobsGQL
-      .watch({ variables: { input: { query } }, fetchPolicy: 'network-only' })
-      .valueChanges.pipe(
-        map((result) => ({
-          data: (result.data?.searchJobs ?? []) as Job[],
-          loading: result.loading,
-          error: result.error,
-        })),
-      );
+    this.searchQueryRef = this.searchJobsGQL.watch({
+      variables: { input: { query } },
+      fetchPolicy: 'network-only',
+    });
+
+    return this.searchQueryRef?.valueChanges.pipe(
+      map((result) => ({
+        data: (result.data?.searchJobs ?? []) as Job[],
+        loading: result.loading,
+        error: result.error,
+      })),
+    );
+  }
+
+  refetchSearch() {
+    return this.searchQueryRef?.refetch();
   }
 
   create(payload: CreateJobInput) {
