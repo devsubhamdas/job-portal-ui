@@ -11,6 +11,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { JobService } from '../../services/job/job.service';
 import { SearchJobsQuery } from '../../../generated/operations';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { LoginDialogService } from '../../services/login-dialog/login-dialog.service';
+import { AuthService } from '../../services/auth/auth.service';
 
 type Job = SearchJobsQuery['searchJobs'][number];
 
@@ -44,10 +46,12 @@ export class JobSearch implements OnInit {
   searchResults = signal<Job[]>([]);
 
   constructor(
+    private authService: AuthService,
     private jobService: JobService,
     private destroyRef: DestroyRef,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
+    private loginDialogService: LoginDialogService,
   ) {}
 
   ngOnInit(): void {
@@ -137,5 +141,13 @@ export class JobSearch implements OnInit {
         this.handleApplyForJob(id);
       },
     });
+  }
+
+  onApplyClick(id: string) {
+    if (!this.authService.user()) {
+      this.loginDialogService.open();
+      return;
+    }
+    this.confirmApplyForJob(id);
   }
 }

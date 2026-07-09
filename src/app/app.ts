@@ -14,6 +14,7 @@ import { AuthService } from './services/auth/auth.service';
 import { CommonModule } from '@angular/common';
 import { MessageService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { LoginDialogService } from './services/login-dialog/login-dialog.service';
 
 @Component({
   selector: 'app-root',
@@ -71,7 +72,7 @@ export class App implements OnInit {
   });
 
   profileMenuItems: MenuItem[] | undefined;
-  loginDialogVisibility: boolean = false;
+  loginDialogVisibility: typeof this.loginDialogService.visible;
   loginForm: FormGroup;
   formSubmitAttempted = false;
   loginInProgress = signal<boolean>(false);
@@ -82,8 +83,10 @@ export class App implements OnInit {
     private fb: FormBuilder,
     private router: Router,
     private authService: AuthService,
+    private loginDialogService: LoginDialogService,
   ) {
     this.authUser = this.authService.user;
+    this.loginDialogVisibility = this.loginDialogService.visible;
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
@@ -115,11 +118,9 @@ export class App implements OnInit {
       next: (result) => {
         if (typeof result.loading === 'boolean') this.loginInProgress.set(result.loading);
         if (result.error) console.error(result.error);
-        this.loginDialogVisibility = false;
+        this.loginDialogService.close();
         this.loginError.set(null);
-        if (this.router.url === '/signup') {
-          this.router.navigate(['/']);
-        }
+        this.router.navigate(['/']);
       },
       error: (err) => {
         console.error(err);
@@ -160,7 +161,7 @@ export class App implements OnInit {
   }
 
   showLoginDialog() {
-    this.loginDialogVisibility = true;
+    this.loginDialogService.open();
   }
 
   onDialogHide() {
@@ -174,7 +175,7 @@ export class App implements OnInit {
   onActionCreate(event: Event) {
     event.preventDefault();
     event.stopPropagation();
-    this.loginDialogVisibility = false;
+    this.loginDialogService.close();
     this.loginError.set(null);
 
     setTimeout(() => {
