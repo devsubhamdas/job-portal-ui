@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { QueryRef } from 'apollo-angular';
-import { map } from 'rxjs';
+import { filter, map } from 'rxjs';
 import {
   ApplyForJobGQL,
   CancelJobApplicationGQL,
@@ -15,6 +15,7 @@ import {
   CancleJobApplicationInput,
   CreateJobInput,
   DeleteJobInput,
+  SearchJobsInput,
 } from '../../../generated/schema';
 
 type Job = SearchJobsQuery['searchJobs'][number];
@@ -31,13 +32,15 @@ export class JobService {
 
   private searchQueryRef?: QueryRef<SearchJobsQuery, SearchJobsQueryVariables>;
 
-  search(query: string) {
+  search(payload: SearchJobsInput) {
+    const { query, limit, cursor } = payload;
     this.searchQueryRef = this.searchJobsGQL.watch({
-      variables: { input: { query } },
+      variables: { input: { query, limit, cursor } },
       fetchPolicy: 'network-only',
     });
 
     return this.searchQueryRef?.valueChanges.pipe(
+      filter((result) => !result.loading),
       map((result) => ({
         data: (result.data?.searchJobs ?? []) as Job[],
         loading: result.loading,

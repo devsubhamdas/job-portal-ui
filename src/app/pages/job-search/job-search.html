@@ -17,25 +17,31 @@
   </div>
 
   <!-- search results section -->
-  @if (!searchResultsLoading()) {
-    <div class="grid gap-3.5">
-      @for (job of searchResults(); track job.id) {
-        <app-job-card
-          [data]="job"
-          [btnOption]="{
-            ...btnOption,
-            label: job.isApplied ? 'Applied' : 'Apply',
-            disabled: !!job.isApplied,
-          }"
-          (onBtnAction)="onApplyClick(job.id)"
-        ></app-job-card>
-      }
-    </div>
-  }
+
+  <div class="grid gap-3.5">
+    @for (job of searchResults(); track job.id) {
+      <app-job-card
+        [data]="job"
+        [btnOption]="{
+          ...btnOption,
+          label: job.isApplied ? 'Applied' : 'Apply',
+          disabled: !!job.isApplied,
+        }"
+        (onBtnAction)="onApplyClick(job.id)"
+      ></app-job-card>
+    }
+  </div>
 
   @if (searchControl.value && !searchResultsLoading() && searchResults().length === 0) {
     <div>
       <app-not-found-card content="No Jobs found."></app-not-found-card>
     </div>
   }
+
+  @if (loadingMore()) {
+    <div class="flex items-center justify-center my-5">
+      <i class="pi pi-spin pi-spinner text-slate-300 text-3xl"></i>
+    </div>
+  }
+  <div #loadMoreTrigger></div>
 </div>

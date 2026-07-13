@@ -1,4 +1,14 @@
-import { Component, DestroyRef, OnInit, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  OnInit,
+  PLATFORM_ID,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { InputTextModule } from 'primeng/inputtext';
 import { JobCard } from '../../components/job-card/job-card';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -13,6 +23,7 @@ import { SearchJobsQuery } from '../../../generated/operations';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { LoginDialogService } from '../../services/login-dialog/login-dialog.service';
 import { AuthService } from '../../services/auth/auth.service';
+import { isPlatformBrowser } from '@angular/common';
 
 type Job = SearchJobsQuery['searchJobs'][number];
 
@@ -29,8 +40,9 @@ type Job = SearchJobsQuery['searchJobs'][number];
   templateUrl: './job-search.html',
   styleUrl: './job-search.css',
 })
-export class JobSearch implements OnInit {
-  applyForJobInProgress = signal(false);
+export class JobSearch implements OnInit, AfterViewInit {
+  private platformId = inject(PLATFORM_ID);
+  @ViewChild('loadMoreTrigger') loadMoreTrigger!: ElementRef;
   readonly BtnSeverity = BtnSeverity;
   readonly BtnSize = BtnSize;
   readonly BtnVariant = BtnVariant;
@@ -43,7 +55,13 @@ export class JobSearch implements OnInit {
 
   searchControl = new FormControl('');
   searchResultsLoading = signal<boolean>(false);
+  loadingMore = signal<boolean>(false);
   searchResults = signal<Job[]>([]);
+  cursor = signal<string | null>(null);
+  hasMore = signal(true);
+  limit = 10;
+
+  applyForJobInProgress = signal(false);
 
   constructor(
     private authService: AuthService,
@@ -55,9 +73,33 @@ export class JobSearch implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.handleSearchForJobs();
+  }
+
+  ngAfterViewInit(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        if (!this.hasMore() || this.searchResultsLoading()) {
+          return;
+        }
+        this.loadMoreSearchResults();
+      }
+    });
+
+    observer.observe(this.loadMoreTrigger.nativeElement);
+    this.destroyRef.onDestroy(() => observer.disconnect());
+  }
+
+  handleSearchForJobs() {
     this.searchControl.valueChanges
       .pipe(
-        tap(() => this.searchResultsLoading.set(true)),
+        tap(() => {
+          this.searchResultsLoading.set(true);
+          this.cursor.set(null);
+          this.searchResults.set([]);
+          this.hasMore.set(true);
+        }),
         debounceTime(400),
         distinctUntilChanged(),
         switchMap((query) => {
@@ -67,19 +109,58 @@ export class JobSearch implements OnInit {
             this.searchResultsLoading.set(false);
             return EMPTY;
           }
-          return this.jobService.search(term);
+          return this.jobService.search({
+            query: term,
+            limit: this.limit ?? 10,
+            cursor: this.cursor(),
+          });
         }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: ({ data, loading, error }) => {
           this.searchResultsLoading.set(loading);
-          if (data) this.searchResults.set(data);
+          if (data) {
+            this.cursor.set(data[data.length - 1]?.id ?? null);
+            this.searchResults.update((results) => [...results, ...data]);
+            if (data.length < this.limit) this.hasMore.set(false);
+          }
           if (error) console.error(error);
         },
         error: (err) => {
           console.error(err.message);
           this.searchResultsLoading.set(false);
+        },
+      });
+  }
+
+  loadMoreSearchResults() {
+    const term = this.searchControl.value?.trim() ?? '';
+
+    if (this.searchResultsLoading() || this.loadingMore()) return;
+
+    if (term.length < 2) return;
+
+    this.loadingMore.set(true);
+    this.jobService
+      .search({
+        query: this.searchControl.value ?? '',
+        limit: this.limit ?? 10,
+        cursor: this.cursor(),
+      })
+      .subscribe({
+        next: ({ data, loading, error }) => {
+          this.loadingMore.set(loading);
+          if (data) {
+            this.cursor.set(data[data.length - 1]?.id);
+            this.searchResults.update((results) => [...results, ...data]);
+            if (data.length < this.limit) this.hasMore.set(false);
+          }
+          if (error) console.error(error);
+        },
+        error: (err) => {
+          console.error(err.message);
+          this.loadingMore.set(false);
         },
       });
   }

@@ -97,7 +97,6 @@ export class Admin implements OnInit {
   onSubmit(event: SubmitEvent) {
     this.formSubmitAttempted = true;
     if (this.createJobForm.invalid) {
-      console.log('clicked');
       return;
     }
 
