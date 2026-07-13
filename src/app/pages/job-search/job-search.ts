@@ -111,7 +111,7 @@ export class JobSearch implements OnInit, AfterViewInit {
           }
           return this.jobService.search({
             query: term,
-            limit: this.limit ?? 10,
+            limit: this.limit,
             cursor: this.cursor(),
           });
         }),
@@ -124,7 +124,7 @@ export class JobSearch implements OnInit, AfterViewInit {
             this.searchResults.set(data);
             this.cursor.set(data.at(-1)?.id ?? null);
             // reject extra loadmore call if the initial result count is less than limit
-            if (data.length < this.limit) this.hasMore.set(false);
+            this.hasMore.set(data.length % this.limit === 0);
           }
           if (error) console.error(error);
         },
@@ -144,8 +144,7 @@ export class JobSearch implements OnInit, AfterViewInit {
     this.loadingMore.set(true);
 
     try {
-      const { data } = await this.jobService.fetchMore(this.cursor()!);
-      if (data && data?.searchJobs.length < this.limit) this.hasMore.set(false);
+      await this.jobService.fetchMore(this.cursor()!);
     } catch (error) {
       console.error(error);
     } finally {
