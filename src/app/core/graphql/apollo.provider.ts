@@ -19,6 +19,34 @@ export const apolloProvider = provideApollo(() => {
       withCredentials: true,
       headers,
     }),
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache({
+      typePolicies: {
+        Query: {
+          fields: {
+            searchJobs: {
+              keyArgs: ['input', ['query']],
+              merge(existing = [], incoming, { args }) {
+                const cursor = args?.['input']?.cursor;
+                // Fresh search
+                if (!cursor) {
+                  return incoming;
+                }
+                return [...existing, ...incoming];
+              },
+            },
+            ownedJobs: {
+              merge(_, incoming) {
+                return incoming;
+              },
+            },
+            appliedJobs: {
+              merge(_, incoming) {
+                return incoming;
+              },
+            },
+          },
+        },
+      },
+    }),
   };
 });

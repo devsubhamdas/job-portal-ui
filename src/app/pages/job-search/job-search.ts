@@ -121,8 +121,9 @@ export class JobSearch implements OnInit, AfterViewInit {
         next: ({ data, loading, error }) => {
           this.searchResultsLoading.set(loading);
           if (data) {
-            this.cursor.set(data[data.length - 1]?.id ?? null);
-            this.searchResults.update((results) => [...results, ...data]);
+            this.searchResults.set(data);
+            this.cursor.set(data.at(-1)?.id ?? null);
+            // reject extra loadmore call if the initial result count is less than limit
             if (data.length < this.limit) this.hasMore.set(false);
           }
           if (error) console.error(error);
@@ -134,35 +135,22 @@ export class JobSearch implements OnInit, AfterViewInit {
       });
   }
 
-  loadMoreSearchResults() {
+  async loadMoreSearchResults() {
     const term = this.searchControl.value?.trim() ?? '';
 
     if (this.searchResultsLoading() || this.loadingMore()) return;
-
-    if (term.length < 2) return;
+    if (term.length < 2 || !this.hasMore() || !this.cursor()) return;
 
     this.loadingMore.set(true);
-    this.jobService
-      .search({
-        query: this.searchControl.value ?? '',
-        limit: this.limit ?? 10,
-        cursor: this.cursor(),
-      })
-      .subscribe({
-        next: ({ data, loading, error }) => {
-          this.loadingMore.set(loading);
-          if (data) {
-            this.cursor.set(data[data.length - 1]?.id);
-            this.searchResults.update((results) => [...results, ...data]);
-            if (data.length < this.limit) this.hasMore.set(false);
-          }
-          if (error) console.error(error);
-        },
-        error: (err) => {
-          console.error(err.message);
-          this.loadingMore.set(false);
-        },
-      });
+
+    try {
+      const { data } = await this.jobService.fetchMore(this.cursor()!);
+      if (data && data?.searchJobs.length < this.limit) this.hasMore.set(false);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      this.loadingMore.set(false);
+    }
   }
 
   handleApplyForJob(id: string) {
@@ -188,7 +176,7 @@ export class JobSearch implements OnInit, AfterViewInit {
             });
             console.error(error);
           }
-          this.jobService.refetchSearch();
+          this.jobService.refetch();
         },
         error: (err) => {
           console.error(err);

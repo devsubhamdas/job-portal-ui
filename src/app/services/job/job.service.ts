@@ -49,7 +49,22 @@ export class JobService {
     );
   }
 
-  refetchSearch() {
+  fetchMore(cursor: string) {
+    if (!this.searchQueryRef) {
+      throw new Error('Search query has not been initialized.');
+    }
+
+    return this.searchQueryRef.fetchMore({
+      variables: {
+        input: {
+          ...this.searchQueryRef.variables.input,
+          cursor,
+        },
+      },
+    });
+  }
+
+  refetch() {
     return this.searchQueryRef?.refetch();
   }
 
