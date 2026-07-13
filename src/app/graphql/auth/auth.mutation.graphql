@@ -1,9 +1,13 @@
+fragment User on User {
+  id
+  name
+  email
+  role
+}
+
 mutation Login($input: LoginInput!) {
   login(input: $input) {
-    id
-    name
-    email
-    role
+    ...User
   }
 }
 
@@ -13,18 +17,12 @@ mutation Logout {
 
 query Me {
   me {
-    id
-    name
-    email
-    role
+    ...User
   }
 }
 
 mutation Signup($input: SignupInput!) {
   signup(input: $input) {
-    id
-    name
-    email
-    role
+    ...User
   }
 }

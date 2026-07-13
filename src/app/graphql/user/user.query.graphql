@@ -1,33 +1,33 @@
+fragment Company on Company {
+  id
+  name
+}
+
+fragment Job on Job {
+  id
+  title
+  description
+  location
+  salary
+  type
+  remote
+  createdAt
+}
+
 query OwnedJobs {
   ownedJobs {
-    id
-    title
-    description
-    location
-    salary
-    type
-    remote
-    createdAt
+    ...Job
     company {
-      id
-      name
+      ...Company
     }
   }
 }
 
 query AppliedJobs {
   appliedJobs {
-    id
-    title
-    description
-    location
-    salary
-    type
-    remote
-    createdAt
+    ...Job
     company {
-      id
-      name
+      ...Company
     }
   }
 }
