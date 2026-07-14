@@ -121,7 +121,8 @@ export class Applications implements OnInit, AfterViewInit {
               summary: 'Success',
               detail: 'Application Cancelled',
             });
-            this.fetchAppliedJobs(true);
+            //update local state instead of refetch
+            this.appliedJobsResult.update((prev) => prev.filter((job) => job.id !== id));
           }
           if (error) {
             this.messageService.add({

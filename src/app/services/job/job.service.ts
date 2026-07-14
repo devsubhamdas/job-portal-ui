@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { QueryRef } from 'apollo-angular';
 import { filter, map } from 'rxjs';
 import {
+  AppliedJobsGQL,
   ApplyForJobGQL,
   CancelJobApplicationGQL,
   CreateJobGQL,
@@ -81,23 +82,47 @@ export class JobService {
   }
 
   apply(payload: ApplyForJobInput) {
-    return this.applyForJobGQL.mutate({ variables: { input: payload } }).pipe(
-      map((result) => ({
-        data: result.data?.applyForJob,
-        error: result.error,
-        loading: result.loading as boolean,
-      })),
-    );
+    return this.applyForJobGQL
+      .mutate({
+        variables: { input: payload },
+        optimisticResponse: {
+          applyForJob: true,
+        },
+        update: (cache, { data }) => {
+          // Mutation failed or return false
+          if (!data?.applyForJob) return;
+          cache.modify({
+            id: cache.identify({
+              __typename: 'Job',
+              id: payload.id,
+            }),
+            fields: {
+              isApplied: () => true,
+            },
+          });
+        },
+      })
+      .pipe(
+        map((result) => ({
+          data: result.data?.applyForJob,
+          error: result.error,
+          loading: result.loading as boolean,
+        })),
+      );
   }
 
   cancel(payload: CancleJobApplicationInput) {
-    return this.cancelJobApplicationGQL.mutate({ variables: { input: payload } }).pipe(
-      map((result) => ({
-        data: result.data?.cancelJobApplication,
-        loading: result.loading as boolean,
-        error: result.error,
-      })),
-    );
+    return this.cancelJobApplicationGQL
+      .mutate({
+        variables: { input: payload },
+      })
+      .pipe(
+        map((result) => ({
+          data: result.data?.cancelJobApplication,
+          loading: result.loading as boolean,
+          error: result.error,
+        })),
+      );
   }
 
   delete(payload: DeleteJobInput) {

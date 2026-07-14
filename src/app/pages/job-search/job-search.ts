@@ -174,7 +174,6 @@ export class JobSearch implements OnInit, AfterViewInit {
             });
             console.error(error);
           }
-          this.jobService.refetch();
         },
         error: (err) => {
           console.error(err);

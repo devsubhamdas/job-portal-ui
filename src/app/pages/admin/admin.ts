@@ -205,7 +205,8 @@ export class Admin implements OnInit, AfterViewInit {
               summary: 'Success',
               detail: 'Job Deleted',
             });
-            this.fetchOwnedJobs(true);
+            //update local state instead of refetch
+            this.ownedJobsResult.update((prev) => prev.filter((job) => job.id !== id));
           }
           if (error) {
             this.messageService.add({
