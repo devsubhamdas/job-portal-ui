@@ -53,6 +53,17 @@ export type Job = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+export type JobConnectionInput = {
+  cursor?: InputMaybe<Scalars['ID']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type JobConnectionResponse = {
+  __typename?: 'JobConnectionResponse';
+  data: Array<Job>;
+  meta: Meta;
+};
+
 export enum JobType {
   FullTime = 'FULL_TIME',
   Internship = 'INTERNSHIP',
@@ -113,11 +124,21 @@ export type MutationSignupArgs = {
 
 export type Query = {
   __typename?: 'Query';
-  appliedJobs: Array<Job>;
+  appliedJobs: JobConnectionResponse;
   getCompanies: Array<Company>;
   me?: Maybe<User>;
-  ownedJobs: Array<Job>;
+  ownedJobs: JobConnectionResponse;
   searchJobs: SearchJobsResponse;
+};
+
+
+export type QueryAppliedJobsArgs = {
+  input: JobConnectionInput;
+};
+
+
+export type QueryOwnedJobsArgs = {
+  input: JobConnectionInput;
 };
 
 

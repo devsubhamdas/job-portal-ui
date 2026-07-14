@@ -40,11 +40,7 @@
   <!-- applications  -->
   <div>
     <div class="my-4"><span class="text-lg font-medium">Applications</span></div>
-    @if (appliedJobsResultLoading()) {
-      <div class="flex items-center justify-center my-5">
-        <i class="pi pi-spin pi-spinner text-slate-300 text-3xl"></i>
-      </div>
-    } @else if (!appliedJobsResultLoading() && appliedJobsResult().length > 0) {
+    @if (appliedJobsResult().length > 0) {
       <div class="grid gap-3.5">
         @for (job of appliedJobsResult(); track job.id) {
           <app-job-card
@@ -54,10 +50,15 @@
           ></app-job-card>
         }
       </div>
+    } @else if (appliedJobsResultLoading()) {
+      <div class="flex items-center justify-center my-5">
+        <i class="pi pi-spin pi-spinner text-slate-300 text-3xl"></i>
+      </div>
     } @else {
       <div>
         <app-not-found-card></app-not-found-card>
       </div>
     }
+    <div #loadMoreTrigger></div>
   </div>
 </div>

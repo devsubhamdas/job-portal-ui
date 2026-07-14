@@ -14,20 +14,35 @@ fragment Job on Job {
   createdAt
 }
 
-query OwnedJobs {
-  ownedJobs {
-    ...Job
-    company {
-      ...Company
+fragment Meta on Meta {
+  hasMore
+  nextCursor
+}
+
+query OwnedJobs($input: JobConnectionInput!) {
+  ownedJobs(input: $input) {
+    data {
+      ...Job
+      company {
+        ...Company
+      }
+    }
+    meta {
+      ...Meta
     }
   }
 }
 
-query AppliedJobs {
-  appliedJobs {
-    ...Job
-    company {
-      ...Company
+query AppliedJobs($input: JobConnectionInput!) {
+  appliedJobs(input: $input) {
+    data {
+      ...Job
+      company {
+        ...Company
+      }
+    }
+    meta {
+      ...Meta
     }
   }
 }

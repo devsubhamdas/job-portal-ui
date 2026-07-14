@@ -13,11 +13,7 @@
   </div>
   <!-- job listings -->
   <div>
-    @if (ownedJobsResultLoading()) {
-      <div class="flex items-center justify-center my-5">
-        <i class="pi pi-spin pi-spinner text-slate-300 text-3xl"></i>
-      </div>
-    } @else if (!ownedJobsResultLoading() && ownedJobsResult().length > 0) {
+    @if (ownedJobsResult().length > 0) {
       <div class="grid gap-3.5">
         @for (job of ownedJobsResult(); track job.id) {
           <app-job-card
@@ -27,9 +23,14 @@
           ></app-job-card>
         }
       </div>
+    } @else if (ownedJobsResultLoading()) {
+      <div class="flex items-center justify-center my-5">
+        <i class="pi pi-spin pi-spinner text-slate-300 text-3xl"></i>
+      </div>
     } @else {
       <app-not-found-card></app-not-found-card>
     }
+    <div #loadMoreTrigger></div>
   </div>
 
   <!-- create job dialog  -->
@@ -42,7 +43,7 @@
     (onHide)="onDialogHide()"
   >
     <div>
-      <form [formGroup]="createJobForm" class="w-md max-w-lg" (ngSubmit)="onSubmit($event)">
+      <form [formGroup]="createJobForm" class="w-md max-w-lg" (ngSubmit)="handleCreateJob($event)">
         <div class="flex flex-col gap-4">
           <div class="flex flex-col gap-2">
             <input

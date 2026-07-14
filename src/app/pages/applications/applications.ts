@@ -1,15 +1,26 @@
-import { Component, OnInit, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  OnInit,
+  PLATFORM_ID,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { DividerModule } from 'primeng/divider';
 import { BtnSeverity, BtnSize, JobCard } from '../../components/job-card/job-card';
 import { NotFoundCard } from '../../components/not-found-card/not-found-card';
 import { UserService } from '../../services/user/user.service';
 import { AppliedJobsQuery } from '../../../generated/operations';
-import { finalize } from 'rxjs';
+import { finalize, tap } from 'rxjs';
 import { AuthService } from '../../services/auth/auth.service';
 import { JobService } from '../../services/job/job.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { isPlatformBrowser } from '@angular/common';
 
-type Job = NonNullable<AppliedJobsQuery['appliedJobs']>[number];
+type Job = NonNullable<AppliedJobsQuery['appliedJobs']['data']>[number];
 
 @Component({
   selector: 'app-applications',
@@ -17,8 +28,9 @@ type Job = NonNullable<AppliedJobsQuery['appliedJobs']>[number];
   templateUrl: './applications.html',
   styleUrl: './applications.css',
 })
-export class Applications implements OnInit {
-  cancelJobApplicationInProgress = signal(false);
+export class Applications implements OnInit, AfterViewInit {
+  private platformId = inject(PLATFORM_ID);
+  @ViewChild('loadMoreTrigger') loadMoreTrigger!: ElementRef;
   btnOption = {
     label: 'Cancel',
     size: BtnSize.Small,
@@ -29,12 +41,19 @@ export class Applications implements OnInit {
   appliedJobsResult = signal<Job[]>([]);
   readonly authUser: typeof this.authService.user;
 
+  cancelJobApplicationInProgress = signal(false);
+
+  limit = 10;
+  hasMore = signal(true);
+  cursor = signal<string | null>(null);
+
   constructor(
     private authService: AuthService,
     private userService: UserService,
     private jobService: JobService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
+    private destroyRef: DestroyRef,
   ) {
     this.authUser = this.authService.user;
   }
@@ -43,18 +62,43 @@ export class Applications implements OnInit {
     this.fetchAppliedJobs();
   }
 
-  fetchAppliedJobs() {
+  ngAfterViewInit(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        if (this.appliedJobsResultLoading() || !this.hasMore()) return;
+        this.fetchAppliedJobs();
+      }
+    });
+    observer.observe(this.loadMoreTrigger.nativeElement);
+    this.destroyRef.onDestroy(() => observer.disconnect());
+  }
+
+  fetchAppliedJobs(reset = false) {
+    if (reset) {
+      this.appliedJobsResult.set([]);
+      this.hasMore.set(true);
+      this.cursor.set(null);
+    }
     this.appliedJobsResultLoading.set(true);
     this.userService
-      .appliedJobs()
+      .appliedJobs({ cursor: this.cursor(), limit: this.limit })
       .pipe(
         finalize(() => {
           this.appliedJobsResultLoading.set(false);
         }),
       )
       .subscribe({
-        next: ({ data, error }) => {
-          if (data) this.appliedJobsResult.set(data);
+        next: ({ data, error, hasMore, nextCursor }) => {
+          if (data) {
+            if (reset) {
+              this.appliedJobsResult.set(data);
+            } else {
+              this.appliedJobsResult.update((prev) => [...prev, ...data]);
+            }
+            this.cursor.set(nextCursor);
+            this.hasMore.set(hasMore);
+          }
           if (error) console.error(error);
         },
         error: (err) => {
@@ -77,7 +121,7 @@ export class Applications implements OnInit {
               summary: 'Success',
               detail: 'Application Cancelled',
             });
-            this.fetchAppliedJobs();
+            this.fetchAppliedJobs(true);
           }
           if (error) {
             this.messageService.add({

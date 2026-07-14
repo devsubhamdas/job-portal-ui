@@ -72,15 +72,21 @@ export type CompanyFragment = { id: string, name: string };
 
 export type JobFragment = { id: string, title: string, description: string, location: string, salary: number, type: Types.JobType, remote: boolean, createdAt: Date };
 
-export type OwnedJobsQueryVariables = Exact<{ [key: string]: never; }>;
+export type MetaFragment = { hasMore: boolean, nextCursor: string | null };
+
+export type OwnedJobsQueryVariables = Exact<{
+  input: Types.JobConnectionInput;
+}>;
 
 
-export type OwnedJobsQuery = { ownedJobs: Array<{ id: string, title: string, description: string, location: string, salary: number, type: Types.JobType, remote: boolean, createdAt: Date, company: { id: string, name: string } }> };
+export type OwnedJobsQuery = { ownedJobs: { data: Array<{ id: string, title: string, description: string, location: string, salary: number, type: Types.JobType, remote: boolean, createdAt: Date, company: { id: string, name: string } }>, meta: { hasMore: boolean, nextCursor: string | null } } };
 
-export type AppliedJobsQueryVariables = Exact<{ [key: string]: never; }>;
+export type AppliedJobsQueryVariables = Exact<{
+  input: Types.JobConnectionInput;
+}>;
 
 
-export type AppliedJobsQuery = { appliedJobs: Array<{ id: string, title: string, description: string, location: string, salary: number, type: Types.JobType, remote: boolean, createdAt: Date, company: { id: string, name: string } }> };
+export type AppliedJobsQuery = { appliedJobs: { data: Array<{ id: string, title: string, description: string, location: string, salary: number, type: Types.JobType, remote: boolean, createdAt: Date, company: { id: string, name: string } }>, meta: { hasMore: boolean, nextCursor: string | null } } };
 
 export const UserFragmentDoc = gql`
     fragment User on User {
@@ -106,6 +112,12 @@ export const JobFragmentDoc = gql`
   type
   remote
   createdAt
+}
+    `;
+export const MetaFragmentDoc = gql`
+    fragment Meta on Meta {
+  hasMore
+  nextCursor
 }
     `;
 export const LoginDocument = gql`
@@ -289,16 +301,22 @@ export const SearchJobsDocument = gql`
     }
   }
 export const OwnedJobsDocument = gql`
-    query OwnedJobs {
-  ownedJobs {
-    ...Job
-    company {
-      ...Company
+    query OwnedJobs($input: JobConnectionInput!) {
+  ownedJobs(input: $input) {
+    data {
+      ...Job
+      company {
+        ...Company
+      }
+    }
+    meta {
+      ...Meta
     }
   }
 }
     ${JobFragmentDoc}
-${CompanyFragmentDoc}`;
+${CompanyFragmentDoc}
+${MetaFragmentDoc}`;
 
   @Injectable({
     providedIn: 'root'
@@ -311,16 +329,22 @@ ${CompanyFragmentDoc}`;
     }
   }
 export const AppliedJobsDocument = gql`
-    query AppliedJobs {
-  appliedJobs {
-    ...Job
-    company {
-      ...Company
+    query AppliedJobs($input: JobConnectionInput!) {
+  appliedJobs(input: $input) {
+    data {
+      ...Job
+      company {
+        ...Company
+      }
+    }
+    meta {
+      ...Meta
     }
   }
 }
     ${JobFragmentDoc}
-${CompanyFragmentDoc}`;
+${CompanyFragmentDoc}
+${MetaFragmentDoc}`;
 
   @Injectable({
     providedIn: 'root'

@@ -11,8 +11,8 @@ import { JobType } from '../../../generated/schema';
 
 type Job =
   | NonNullable<SearchJobsQuery['searchJobs']['data']>[number]
-  | NonNullable<AppliedJobsQuery['appliedJobs']>[number]
-  | NonNullable<OwnedJobsQuery['ownedJobs']>[number];
+  | NonNullable<AppliedJobsQuery['appliedJobs']['data']>[number]
+  | NonNullable<OwnedJobsQuery['ownedJobs']['data']>[number];
 
 export enum BtnSeverity {
   Primary = 'primary',

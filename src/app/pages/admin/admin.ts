@@ -1,4 +1,14 @@
-import { Component, OnInit, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  OnInit,
+  PLATFORM_ID,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { BtnSeverity, BtnSize, JobCard } from '../../components/job-card/job-card';
 import { ButtonModule } from 'primeng/button';
 import { NotFoundCard } from '../../components/not-found-card/not-found-card';
@@ -15,8 +25,9 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { UserService } from '../../services/user/user.service';
 import { OwnedJobsQuery } from '../../../generated/operations';
 import { finalize } from 'rxjs';
+import { isPlatformBrowser } from '@angular/common';
 
-type Job = NonNullable<OwnedJobsQuery['ownedJobs']>[number];
+type Job = NonNullable<OwnedJobsQuery['ownedJobs']['data']>[number];
 
 interface JobType {
   label: string;
@@ -41,13 +52,15 @@ interface JobType {
   templateUrl: './admin.html',
   styleUrl: './admin.css',
 })
-export class Admin implements OnInit {
-  deleteJobInProgress = signal(false);
+export class Admin implements OnInit, AfterViewInit {
+  private platformId = inject(PLATFORM_ID);
+  @ViewChild('loadMoreTrigger') loadMoreTrigger!: ElementRef;
   btnOption = {
     label: 'Remove',
     size: BtnSize.Small,
     severity: BtnSeverity.Danger,
   };
+
   createJobDialogVisibility: boolean = false;
   createJobForm: FormGroup;
   formSubmitAttempted: boolean = false;
@@ -55,7 +68,12 @@ export class Admin implements OnInit {
 
   ownedJobsResult = signal<Job[]>([]);
   ownedJobsResultLoading = signal(false);
+  cursor = signal<string | null>(null);
+  hasMore = signal(true);
+  limit = 10;
+
   createJobInProgress = signal<boolean>(false);
+  deleteJobInProgress = signal(false);
 
   constructor(
     private fb: FormBuilder,
@@ -63,6 +81,7 @@ export class Admin implements OnInit {
     private userService: UserService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
+    private destroyRef: DestroyRef,
   ) {
     this.createJobForm = this.fb.group({
       title: ['', Validators.required],
@@ -94,7 +113,48 @@ export class Admin implements OnInit {
     this.fetchOwnedJobs();
   }
 
-  onSubmit(event: SubmitEvent) {
+  ngAfterViewInit(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        if (this.ownedJobsResultLoading() || !this.hasMore()) return;
+        this.fetchOwnedJobs();
+      }
+    });
+    observer.observe(this.loadMoreTrigger.nativeElement);
+    this.destroyRef.onDestroy(() => observer.disconnect());
+  }
+
+  fetchOwnedJobs(reset = false) {
+    if (reset) {
+      this.ownedJobsResult.set([]);
+      this.hasMore.set(true);
+      this.cursor.set(null);
+    }
+    this.ownedJobsResultLoading.set(true);
+    this.userService
+      .ownedJobs({ cursor: this.cursor(), limit: this.limit })
+      .pipe(finalize(() => this.ownedJobsResultLoading.set(false)))
+      .subscribe({
+        next: ({ data, error, hasMore, nextCursor }) => {
+          if (data) {
+            if (reset) {
+              this.ownedJobsResult.set(data);
+            } else {
+              this.ownedJobsResult.update((prev) => [...prev, ...data]);
+            }
+            this.hasMore.set(hasMore);
+            this.cursor.set(nextCursor);
+          }
+          if (error) console.error(error);
+        },
+        error: (err) => {
+          console.error(err);
+        },
+      });
+  }
+
+  handleCreateJob(event: SubmitEvent) {
     this.formSubmitAttempted = true;
     if (this.createJobForm.invalid) {
       return;
@@ -113,7 +173,7 @@ export class Admin implements OnInit {
             summary: 'Success',
             detail: 'Job Created',
           });
-          this.fetchOwnedJobs();
+          this.fetchOwnedJobs(true);
         }
         if (error) {
           console.error(error);
@@ -131,22 +191,6 @@ export class Admin implements OnInit {
     });
   }
 
-  fetchOwnedJobs() {
-    this.ownedJobsResultLoading.set(true);
-    this.userService
-      .ownedJobs()
-      .pipe(finalize(() => this.ownedJobsResultLoading.set(false)))
-      .subscribe({
-        next: ({ data, error }) => {
-          if (data) this.ownedJobsResult.set(data);
-          if (error) console.error(error);
-        },
-        error: (err) => {
-          console.error(err);
-        },
-      });
-  }
-
   handleDeleteJob(id: string) {
     this.deleteJobInProgress.set(true);
     this.jobService
@@ -161,7 +205,7 @@ export class Admin implements OnInit {
               summary: 'Success',
               detail: 'Job Deleted',
             });
-            this.fetchOwnedJobs();
+            this.fetchOwnedJobs(true);
           }
           if (error) {
             this.messageService.add({
