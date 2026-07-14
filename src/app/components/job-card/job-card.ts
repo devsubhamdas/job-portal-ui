@@ -10,7 +10,7 @@ import { AppliedJobsQuery, OwnedJobsQuery, SearchJobsQuery } from '../../../gene
 import { JobType } from '../../../generated/schema';
 
 type Job =
-  | NonNullable<SearchJobsQuery['searchJobs']>[number]
+  | NonNullable<SearchJobsQuery['searchJobs']['data']>[number]
   | NonNullable<AppliedJobsQuery['appliedJobs']>[number]
   | NonNullable<OwnedJobsQuery['ownedJobs']>[number];
 

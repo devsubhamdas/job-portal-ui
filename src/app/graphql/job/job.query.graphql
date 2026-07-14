@@ -1,17 +1,23 @@
 query SearchJobs($input: SearchJobsInput!) {
   searchJobs(input: $input) {
-    id
-    title
-    description
-    location
-    salary
-    type
-    remote
-    isApplied
-    createdAt
-    company {
+    data {
       id
-      name
+      title
+      description
+      location
+      salary
+      type
+      remote
+      isApplied
+      createdAt
+      company {
+        id
+        name
+      }
+    }
+    meta {
+      hasMore
+      nextCursor
     }
   }
 }

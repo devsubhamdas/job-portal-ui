@@ -28,10 +28,14 @@ export const apolloProvider = provideApollo(() => {
               merge(existing = [], incoming, { args }) {
                 const cursor = args?.['input']?.cursor;
                 // Fresh search
-                if (!cursor) {
+                if (!cursor || !existing) {
                   return incoming;
                 }
-                return [...existing, ...incoming];
+
+                return {
+                  ...incoming,
+                  data: [...existing.data, ...incoming.data],
+                };
               },
             },
             ownedJobs: {

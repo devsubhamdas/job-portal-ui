@@ -18,7 +18,7 @@ import {
   SearchJobsInput,
 } from '../../../generated/schema';
 
-type Job = SearchJobsQuery['searchJobs'][number];
+type Job = SearchJobsQuery['searchJobs']['data'][number];
 
 @Injectable({
   providedIn: 'root',
@@ -42,9 +42,11 @@ export class JobService {
     return this.searchQueryRef?.valueChanges.pipe(
       filter((result) => !result.loading),
       map((result) => ({
-        data: (result.data?.searchJobs ?? []) as Job[],
+        data: (result.data?.searchJobs?.data ?? []) as Job[],
         loading: result.loading,
         error: result.error,
+        hasMore: result.data?.searchJobs?.meta?.hasMore as boolean,
+        cursor: result.data?.searchJobs?.meta?.nextCursor ?? null,
       })),
     );
   }

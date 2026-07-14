@@ -64,6 +64,12 @@ export type LoginInput = {
   password: Scalars['String']['input'];
 };
 
+export type Meta = {
+  __typename?: 'Meta';
+  hasMore: Scalars['Boolean']['output'];
+  nextCursor?: Maybe<Scalars['ID']['output']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   applyForJob: Scalars['Boolean']['output'];
@@ -111,7 +117,7 @@ export type Query = {
   getCompanies: Array<Company>;
   me?: Maybe<User>;
   ownedJobs: Array<Job>;
-  searchJobs: Array<Job>;
+  searchJobs: SearchJobsResponse;
 };
 
 
@@ -120,9 +126,15 @@ export type QuerySearchJobsArgs = {
 };
 
 export type SearchJobsInput = {
-  cursor?: InputMaybe<Scalars['String']['input']>;
+  cursor?: InputMaybe<Scalars['ID']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   query: Scalars['String']['input'];
+};
+
+export type SearchJobsResponse = {
+  __typename?: 'SearchJobsResponse';
+  data: Array<Job>;
+  meta: Meta;
 };
 
 export type SignupInput = {

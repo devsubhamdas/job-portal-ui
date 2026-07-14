@@ -25,7 +25,7 @@ import { LoginDialogService } from '../../services/login-dialog/login-dialog.ser
 import { AuthService } from '../../services/auth/auth.service';
 import { isPlatformBrowser } from '@angular/common';
 
-type Job = SearchJobsQuery['searchJobs'][number];
+type Job = SearchJobsQuery['searchJobs']['data'][number];
 
 @Component({
   selector: 'app-job-search',
@@ -118,13 +118,12 @@ export class JobSearch implements OnInit, AfterViewInit {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: ({ data, loading, error }) => {
+        next: ({ data, loading, error, hasMore, cursor }) => {
           this.searchResultsLoading.set(loading);
           if (data) {
+            this.hasMore.set(hasMore);
+            this.cursor.set(cursor);
             this.searchResults.set(data);
-            this.cursor.set(data.at(-1)?.id ?? null);
-            // reject extra loadmore call if the initial result count is less than limit
-            this.hasMore.set(data.length % this.limit === 0);
           }
           if (error) console.error(error);
         },
