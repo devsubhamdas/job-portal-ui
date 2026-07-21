@@ -25,7 +25,7 @@ export const apolloProvider = provideApollo(() => {
           fields: {
             searchJobs: {
               keyArgs: ['input', ['query']],
-              merge(existing = [], incoming, { args }) {
+              merge(existing, incoming, { args }) {
                 const cursor = args?.['input']?.cursor;
                 // Fresh search
                 if (!cursor || !existing) {

@@ -37,7 +37,7 @@ export class JobService {
     const { query, limit, cursor } = payload;
     this.searchQueryRef = this.searchJobsGQL.watch({
       variables: { input: { query, limit, cursor } },
-      fetchPolicy: 'network-only',
+      fetchPolicy: 'cache-and-network',
     });
 
     return this.searchQueryRef?.valueChanges.pipe(

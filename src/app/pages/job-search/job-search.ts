@@ -24,6 +24,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { LoginDialogService } from '../../services/login-dialog/login-dialog.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { isPlatformBrowser } from '@angular/common';
+import { JobSearchStateService } from '../../services/job-search-state/job-search-state.service';
 
 type Job = SearchJobsQuery['searchJobs']['data'][number];
 
@@ -68,11 +69,26 @@ export class JobSearch implements OnInit, AfterViewInit {
     private jobService: JobService,
     private destroyRef: DestroyRef,
     private messageService: MessageService,
+    private jobSearchStateService: JobSearchStateService,
     private confirmationService: ConfirmationService,
     private loginDialogService: LoginDialogService,
   ) {}
 
   ngOnInit(): void {
+    const {
+      searchTerm: term,
+      searchResults,
+      hasMore,
+      cursor,
+    } = this.jobSearchStateService.getValue();
+    if (term) {
+      this.searchControl.setValue(term);
+    }
+
+    if (searchResults) this.searchResults.set(searchResults);
+    if (hasMore !== null || hasMore !== undefined) this.hasMore.set(hasMore);
+    if (cursor) this.cursor.set(cursor);
+
     this.handleSearchForJobs();
   }
 
@@ -109,6 +125,7 @@ export class JobSearch implements OnInit, AfterViewInit {
             this.searchResultsLoading.set(false);
             return EMPTY;
           }
+          this.jobSearchStateService.searchTerm.set(term);
           return this.jobService.search({
             query: term,
             limit: this.limit,
@@ -124,6 +141,7 @@ export class JobSearch implements OnInit, AfterViewInit {
             this.hasMore.set(hasMore);
             this.cursor.set(cursor);
             this.searchResults.set(data);
+            this.jobSearchStateService.setValue({ searchResults: data, hasMore, cursor });
           }
           if (error) console.error(error);
         },
