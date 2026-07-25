@@ -41,6 +41,25 @@
     <router-outlet />
   </div>
 
+  <!-- notification panel  -->
+  @if (newJobPostList().length) {
+    <div class="fixed bottom-5.5 right-5.5">
+      <p-button (click)="notification_op.toggle($event)" icon="pi pi-bell" severity="contrast" />
+      <p-popover #notification_op>
+        <div class="max-h-72 overflow-scroll">
+          @for (job of newJobPostList(); track job.id) {
+            <p-panel header="New Job" class="my-1">
+              <p class="m-0 text-slate-500">
+                <strong>{{ job.company.name.toUpperCase() }}</strong> has posted for
+                <strong>{{ job.title.toUpperCase() }}</strong> role.
+              </p>
+            </p-panel>
+          }
+        </div>
+      </p-popover>
+    </div>
+  }
+
   <!-- login form dialog -->
   <p-dialog
     header="Login"

@@ -7,6 +7,7 @@ import {
   CancelJobApplicationGQL,
   CreateJobGQL,
   DeleteJobGQL,
+  JobCreatedGQL,
   SearchJobsGQL,
   SearchJobsQuery,
   SearchJobsQueryVariables,
@@ -30,6 +31,7 @@ export class JobService {
   private applyForJobGQL = inject(ApplyForJobGQL);
   private cancelJobApplicationGQL = inject(CancelJobApplicationGQL);
   private deleteJobGQL = inject(DeleteJobGQL);
+  private jobCreatedGQL = inject(JobCreatedGQL);
 
   private searchQueryRef?: QueryRef<SearchJobsQuery, SearchJobsQueryVariables>;
 
@@ -133,5 +135,11 @@ export class JobService {
         loading: result.loading as boolean,
       })),
     );
+  }
+
+  jobCreated() {
+    return this.jobCreatedGQL
+      .subscribe()
+      .pipe(map((result) => ({ data: result.data?.jobCreated, error: result.error })));
   }
 }

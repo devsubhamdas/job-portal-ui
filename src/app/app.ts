@@ -1,4 +1,13 @@
-import { Component, computed, effect, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  HostListener,
+  OnInit,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { RouterOutlet, Router, RouterLinkWithHref } from '@angular/router';
 import { MenubarModule } from 'primeng/menubar';
 import { ButtonModule } from 'primeng/button';
@@ -7,6 +16,8 @@ import { MenuModule } from 'primeng/menu';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
+import { Popover, PopoverModule } from 'primeng/popover';
+import { PanelModule } from 'primeng/panel';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { ToastModule } from 'primeng/toast';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -15,6 +26,11 @@ import { CommonModule } from '@angular/common';
 import { MessageService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { LoginDialogService } from './services/login-dialog/login-dialog.service';
+import { JobService } from './services/job/job.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { JobCreatedSubscription } from '../generated/operations';
+
+type Job = JobCreatedSubscription['jobCreated'];
 
 @Component({
   selector: 'app-root',
@@ -28,6 +44,8 @@ import { LoginDialogService } from './services/login-dialog/login-dialog.service
     PasswordModule,
     InputTextModule,
     AutoFocusModule,
+    PopoverModule,
+    PanelModule,
     ToastModule,
     ConfirmDialogModule,
     RouterLinkWithHref,
@@ -79,11 +97,29 @@ export class App implements OnInit {
   readonly authUser: typeof this.authService.user;
   loginError = signal<{ field: string; message: string } | null>(null);
 
+  newJobPostList = signal<Job[]>([]);
+
+  private scheduled = false;
+  @ViewChild('notification_op') notificationOp!: Popover;
+  @HostListener('window:scroll')
+  onWindowScroll() {
+    if (!this.notificationOp.overlayVisible || this.scheduled) {
+      return;
+    }
+    this.scheduled = true;
+    requestAnimationFrame(() => {
+      this.notificationOp.align();
+      this.scheduled = false;
+    });
+  }
+
   constructor(
     private fb: FormBuilder,
     private router: Router,
     private authService: AuthService,
+    private jobService: JobService,
     private loginDialogService: LoginDialogService,
+    private destroyRef: DestroyRef,
   ) {
     this.authUser = this.authService.user;
     this.loginDialogVisibility = this.loginDialogService.visible;
@@ -103,6 +139,8 @@ export class App implements OnInit {
         ],
       },
     ];
+
+    this.listenForJobCreatedEvent();
   }
 
   // Handle Login
@@ -150,6 +188,18 @@ export class App implements OnInit {
       },
       error: (err) => console.error(err),
     });
+  }
+
+  listenForJobCreatedEvent() {
+    this.jobService
+      .jobCreated()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ data }) => {
+          if (data) this.newJobPostList.update((prev) => [data, ...prev]);
+        },
+        error: (err) => console.error(err),
+      });
   }
 
   get email() {

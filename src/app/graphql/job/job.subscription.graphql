@@ -1,0 +1,10 @@
+subscription JobCreated {
+  jobCreated {
+    id
+    title
+    company {
+      id
+      name
+    }
+  }
+}

@@ -165,6 +165,11 @@ export type SignupInput = {
   role: UserRole;
 };
 
+export type Subscription = {
+  __typename?: 'Subscription';
+  jobCreated: Job;
+};
+
 export type User = {
   __typename?: 'User';
   appliedJobs?: Maybe<Array<Job>>;

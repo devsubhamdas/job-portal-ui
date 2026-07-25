@@ -68,6 +68,11 @@ export type SearchJobsQueryVariables = Exact<{
 
 export type SearchJobsQuery = { searchJobs: { data: Array<{ id: string, title: string, description: string, location: string, salary: number, type: Types.JobType, remote: boolean, isApplied: boolean | null, createdAt: Date, company: { id: string, name: string } }>, meta: { hasMore: boolean, nextCursor: string | null } } };
 
+export type JobCreatedSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type JobCreatedSubscription = { jobCreated: { id: string, title: string, company: { id: string, name: string } } };
+
 export type CompanyFragment = { id: string, name: string };
 
 export type JobFragment = { id: string, title: string, description: string, location: string, salary: number, type: Types.JobType, remote: boolean, createdAt: Date };
@@ -295,6 +300,29 @@ export const SearchJobsDocument = gql`
   })
   export class SearchJobsGQL extends Apollo.Query<SearchJobsQuery, SearchJobsQueryVariables> {
     override document = SearchJobsDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const JobCreatedDocument = gql`
+    subscription JobCreated {
+  jobCreated {
+    id
+    title
+    company {
+      id
+      name
+    }
+  }
+}
+    `;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class JobCreatedGQL extends Apollo.Subscription<JobCreatedSubscription, JobCreatedSubscriptionVariables> {
+    override document = JobCreatedDocument;
     
     constructor(apollo: Apollo.Apollo) {
       super(apollo);
