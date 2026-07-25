@@ -26,6 +26,7 @@ import { UserService } from '../../services/user/user.service';
 import { OwnedJobsQuery } from '../../../generated/operations';
 import { finalize } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 type Job = NonNullable<OwnedJobsQuery['ownedJobs']['data']>[number];
 
@@ -134,7 +135,10 @@ export class Admin implements OnInit, AfterViewInit {
     this.ownedJobsResultLoading.set(true);
     this.userService
       .ownedJobs({ cursor: this.cursor(), limit: this.limit })
-      .pipe(finalize(() => this.ownedJobsResultLoading.set(false)))
+      .pipe(
+        finalize(() => this.ownedJobsResultLoading.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: ({ data, error, hasMore, nextCursor }) => {
           if (data) {
@@ -162,40 +166,48 @@ export class Admin implements OnInit, AfterViewInit {
 
     const payload = this.createJobForm.getRawValue();
     this.createJobInProgress.set(true);
-    this.jobService.create(payload).subscribe({
-      next: ({ data, error, loading }) => {
-        this.createJobInProgress.set(loading);
-        if (data) {
-          this.createJobForm.reset();
-          this.createJobDialogVisibility = false;
+    this.jobService
+      .create(payload)
+      .pipe(
+        finalize(() => this.createJobInProgress.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: ({ data, error, loading }) => {
+          this.createJobInProgress.set(loading);
+          if (data) {
+            this.createJobForm.reset();
+            this.createJobDialogVisibility = false;
+            this.messageService.add({
+              severity: 'info',
+              summary: 'Success',
+              detail: 'Job Created',
+            });
+            this.fetchOwnedJobs(true);
+          }
+          if (error) {
+            console.error(error);
+          }
+        },
+        error: (err) => {
+          console.error(err);
           this.messageService.add({
-            severity: 'info',
-            summary: 'Success',
-            detail: 'Job Created',
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to create job',
           });
-          this.fetchOwnedJobs(true);
-        }
-        if (error) {
-          console.error(error);
-        }
-      },
-      error: (err) => {
-        console.error(err);
-        this.createJobInProgress.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to create job',
-        });
-      },
-    });
+        },
+      });
   }
 
   handleDeleteJob(id: string) {
     this.deleteJobInProgress.set(true);
     this.jobService
       .delete({ id })
-      .pipe(finalize(() => this.deleteJobInProgress.set(false)))
+      .pipe(
+        finalize(() => this.deleteJobInProgress.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: ({ data, error, loading }) => {
           this.deleteJobInProgress.set(loading);

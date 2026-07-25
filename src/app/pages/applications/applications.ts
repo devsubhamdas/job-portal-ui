@@ -19,6 +19,7 @@ import { AuthService } from '../../services/auth/auth.service';
 import { JobService } from '../../services/job/job.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { isPlatformBrowser } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 type Job = NonNullable<AppliedJobsQuery['appliedJobs']['data']>[number];
 
@@ -87,6 +88,7 @@ export class Applications implements OnInit, AfterViewInit {
         finalize(() => {
           this.appliedJobsResultLoading.set(false);
         }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
         next: ({ data, error, hasMore, nextCursor }) => {
@@ -111,7 +113,10 @@ export class Applications implements OnInit, AfterViewInit {
     this.cancelJobApplicationInProgress.set(true);
     this.jobService
       .cancel({ id })
-      .pipe(finalize(() => this.cancelJobApplicationInProgress.set(false)))
+      .pipe(
+        finalize(() => this.cancelJobApplicationInProgress.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: ({ data, error, loading }) => {
           this.cancelJobApplicationInProgress.set(loading);

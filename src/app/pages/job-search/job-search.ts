@@ -178,7 +178,10 @@ export class JobSearch implements OnInit, AfterViewInit {
     this.applyForJobInProgress.set(true);
     this.jobService
       .apply({ id })
-      .pipe(finalize(() => this.applyForJobInProgress.set(false)))
+      .pipe(
+        finalize(() => this.applyForJobInProgress.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: ({ data, loading, error }) => {
           this.applyForJobInProgress.set(loading);
