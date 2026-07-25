@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
@@ -13,6 +13,8 @@ import {
 } from '@angular/forms';
 import { AuthService } from '../../services/auth/auth.service';
 import { Router } from '@angular/router';
+import { finalize } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 interface Role {
   label: string;
@@ -43,6 +45,7 @@ export class Signup implements OnInit {
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
+    private destroyRef: DestroyRef,
   ) {
     this.signupForm = this.fb.group(
       {
@@ -81,32 +84,35 @@ export class Signup implements OnInit {
     const payload = { name, email, password, role };
     this.signupInProgress.set(true);
 
-    this.authService.signup(payload).subscribe({
-      next: (result) => {
-        if (result.data) {
-          // console.log(result.data);
-          this.signupError.set(null);
-          this.router.navigate(['/']);
-        }
-        if (result.error) {
-          console.error(result.error);
-        }
-
-        this.signupInProgress.set(false);
-      },
-      error: (err) => {
-        this.signupInProgress.set(false);
-        console.error(err);
-        if (
-          err.errors?.[0]?.message.includes('Unique constraint failed on the fields: (`email`)')
-        ) {
-          this.signupError.set({
-            field: 'email',
-            message: 'Email already exists',
-          });
-        }
-      },
-    });
+    this.authService
+      .signup(payload)
+      .pipe(
+        finalize(() => this.signupInProgress.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (result) => {
+          if (result.data) {
+            // console.log(result.data);
+            this.signupError.set(null);
+            this.router.navigate(['/']);
+          }
+          if (result.error) {
+            console.error(result.error);
+          }
+        },
+        error: (err) => {
+          console.error(err);
+          if (
+            err.errors?.[0]?.message.includes('Unique constraint failed on the fields: (`email`)')
+          ) {
+            this.signupError.set({
+              field: 'email',
+              message: 'Email already exists',
+            });
+          }
+        },
+      });
   }
 
   isInvalid(controlName: string) {
