@@ -32,7 +32,7 @@
     }
   </div>
 
-  @if (searchControl.value && !searchResultsLoading() && searchResults().length === 0) {
+  @if (showNotFoundCard() && !searchResultsLoading()) {
     <div>
       <app-not-found-card content="No Jobs found."></app-not-found-card>
     </div>

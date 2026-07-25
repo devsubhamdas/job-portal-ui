@@ -64,6 +64,8 @@ export class JobSearch implements OnInit, AfterViewInit {
 
   applyForJobInProgress = signal(false);
 
+  showNotFoundCard = signal(false);
+
   constructor(
     private authService: AuthService,
     private jobService: JobService,
@@ -110,11 +112,13 @@ export class JobSearch implements OnInit, AfterViewInit {
   handleSearchForJobs() {
     this.searchControl.valueChanges
       .pipe(
-        tap(() => {
-          this.searchResultsLoading.set(true);
+        tap((query) => {
+          const term = query?.trim() || '';
+          if (term.length >= 2) this.searchResultsLoading.set(true);
           this.cursor.set(null);
           this.searchResults.set([]);
           this.hasMore.set(true);
+          this.showNotFoundCard.set(false);
         }),
         debounceTime(400),
         distinctUntilChanged(),
@@ -142,6 +146,7 @@ export class JobSearch implements OnInit, AfterViewInit {
             this.cursor.set(cursor);
             this.searchResults.set(data);
             this.jobSearchStateService.setValue({ searchResults: data, hasMore, cursor });
+            if (data.length === 0) this.showNotFoundCard.set(true);
           }
           if (error) console.error(error);
         },
