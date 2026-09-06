@@ -1,59 +1,100 @@
-# Client
+# JobPortal UI
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.13.
+Frontend application for a job portal platform built with **Angular, Apollo Client, GraphQL, and WebSockets**.
 
-## Development server
+The application allows users to browse and apply for jobs, create and manage job postings, track applications, and receive real-time notifications.
 
-To start a local development server, run:
+## Features
 
-```bash
-ng serve
-```
+- 🔐 User authentication
+- 💼 Browse and search job postings
+- 📢 Create and manage job postings
+- 📄 Apply for jobs
+- 📊 Track posted and applied jobs
+- 🔔 Real-time notifications using WebSockets
+- 🚀 GraphQL integration with Apollo Client
+- 📱 Responsive user interface
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Tech Stack
 
-## Code scaffolding
+- Angular
+- TypeScript
+- Apollo Client
+- GraphQL
+- WebSockets
+- PrimeNG
+- Tailwind CSS
+- RxJS
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Installation
 
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+### 1. Clone the repository
 
 ```bash
-ng test
+git clone https://github.com/devsubhamdas/job-portal-ui
+cd job-portal-ui
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+### 2. Install dependencies
 
 ```bash
-ng e2e
+npm install
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+### 3. Configure the API
 
-## Additional Resources
+Configure the GraphQL API and WebSocket endpoints in the application's environment configuration to point to the **JobPortal API**.
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+### 4. Start the development server
+
+```bash
+npm start
+```
+
+The application will be available at:
+
+```text
+http://localhost:4200
+```
+
+## Production Build
+
+Build the application:
+
+```bash
+npm run build
+```
+
+For SSR:
+
+```bash
+npm run serve:ssr:client
+```
+
+## Code Generation
+
+GraphQL types and Apollo services are generated from the GraphQL schema and operations.
+
+Run:
+
+```bash
+npm run codegen
+```
+
+To watch for changes:
+
+```bash
+npm run codegen:watch
+```
+
+## Related Project
+
+This frontend works with the **JobPortal API**, which provides authentication, job management, applications, and real-time notifications.
+
+## Associated Repository
+
+**Jobportal Backend**: [job-portal-api-graphql]("https://github.com/devsubhamdas/job-portal-api-graphql")
+
+## Project Purpose
+
+JobPortal UI provides a user-friendly interface for a complete job recruitment platform, allowing users to discover and apply for jobs, post and manage job listings, track applications, and receive real-time notifications.
