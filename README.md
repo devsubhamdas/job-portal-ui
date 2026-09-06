@@ -93,7 +93,7 @@ This frontend works with the **JobPortal API**, which provides authentication, j
 
 ## Associated Repository
 
-**Jobportal Backend**: [job-portal-api-graphql]("https://github.com/devsubhamdas/job-portal-api-graphql")
+**Jobportal Backend**: [job-portal-api-graphql](https://github.com/devsubhamdas/job-portal-api-graphql)
 
 ## Project Purpose
 
