@@ -7,6 +7,7 @@ import { HttpHeaders } from '@angular/common/http';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 import { OperationTypeNode } from 'graphql';
+import { environment } from '../../../environments/environment';
 
 export const apolloProvider = provideApollo(() => {
   const $httpLink = inject(HttpLink);
@@ -18,7 +19,7 @@ export const apolloProvider = provideApollo(() => {
   const headers = isServer && cookie ? new HttpHeaders({ cookie }) : undefined;
 
   const httpLink = $httpLink.create({
-    uri: 'http://localhost:8080/graphql',
+    uri: environment.graphqlHttpUri,
     withCredentials: true,
     headers,
   });
@@ -28,7 +29,7 @@ export const apolloProvider = provideApollo(() => {
   function createSplitLink() {
     const wsLink = new GraphQLWsLink(
       createClient({
-        url: 'ws://localhost:8080/graphql',
+        url: environment.graphqlWsUri,
         connectionParams: async () => {
           return {
             // Optional authentication
