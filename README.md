@@ -41,9 +41,27 @@ cd job-portal-ui
 npm install
 ```
 
-### 3. Configure the API
+### 3. Environment Setup
 
 Configure the GraphQL API and WebSocket endpoints in the application's environment configuration to point to the **JobPortal API**.
+
+```bash
+ng generate environments
+```
+
+It will generate `environment.ts` and `environment.development.ts`
+
+```ts
+// environment.ts (dev)
+export const environment = {
+  // for production true
+  production: false,
+  graphqlHttpUri: 'http://localhost:8080/graphql',
+  graphqlWsUri: 'ws://localhost:8080/graphql',
+};
+```
+
+This is the sample for development environment. Paste it in both the files. For production purpose udpate the `environment.ts` accordingly.
 
 ### 4. Start the development server
 
