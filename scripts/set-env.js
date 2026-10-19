@@ -1,8 +1,8 @@
 // for production only
 // run before build command
 
-import fs from 'node:fs';
-import path from 'node:path';
+const fs = require('fs');
+const path = require('path');
 
 const http = process.env.GRAPHQL_HTTP_URI;
 const ws = process.env.GRAPHQL_WS_URI;
