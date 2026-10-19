@@ -7,6 +7,9 @@ import {
   OnInit,
   signal,
   ViewChild,
+  NgZone,
+  inject,
+  PLATFORM_ID,
 } from '@angular/core';
 import { RouterOutlet, Router, RouterLinkWithHref } from '@angular/router';
 import { MenubarModule } from 'primeng/menubar';
@@ -22,7 +25,7 @@ import { AutoFocusModule } from 'primeng/autofocus';
 import { ToastModule } from 'primeng/toast';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from './services/auth/auth.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { MessageService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { LoginDialogService } from './services/login-dialog/login-dialog.service';
@@ -99,19 +102,18 @@ export class App implements OnInit {
 
   newJobPostList = signal<Job[]>([]);
 
+  private platformId = inject(PLATFORM_ID);
+  private zone = inject(NgZone);
   private scheduled = false;
-  @ViewChild('notification_op') notificationOp!: Popover;
-  @HostListener('window:scroll')
-  onWindowScroll() {
-    if (!this.notificationOp.overlayVisible || this.scheduled) {
-      return;
-    }
+  @ViewChild('notification_op') notificationOp?: Popover;
+  private onScroll = () => {
+    if (!this.notificationOp?.overlayVisible || this.scheduled) return;
     this.scheduled = true;
     requestAnimationFrame(() => {
-      this.notificationOp.align();
+      this.notificationOp?.align();
       this.scheduled = false;
     });
-  }
+  };
 
   constructor(
     private fb: FormBuilder,
@@ -141,6 +143,16 @@ export class App implements OnInit {
     ];
 
     this.listenForJobCreatedEvent();
+
+    if (!isPlatformBrowser(this.platformId)) return;
+    this.zone.runOutsideAngular(() => {
+      window.addEventListener('scroll', this.onScroll, { passive: true });
+    });
+  }
+
+  ngOnDestroy() {
+    if (!isPlatformBrowser(this.platformId)) return;
+    window.removeEventListener('scroll', this.onScroll);
   }
 
   // Handle Login
