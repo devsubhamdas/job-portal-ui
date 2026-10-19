@@ -4,6 +4,8 @@ Frontend application for a job portal platform built with **Angular, Apollo Clie
 
 The application allows users to browse and apply for jobs, create and manage job postings, track applications, and receive real-time notifications.
 
+`Live Demo`: https://job-portal-73ah.onrender.com/
+
 ## Features
 
 - 🔐 User authentication
