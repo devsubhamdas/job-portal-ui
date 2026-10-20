@@ -44,6 +44,7 @@
     "@graphql-codegen/typescript": "^6.0.2",
     "@graphql-codegen/typescript-apollo-angular": "^5.0.1",
     "@graphql-codegen/typescript-operations": "^6.0.4",
+    "@netlify/angular-runtime": "^4.0.0",
     "@tailwindcss/postcss": "^4.1.12",
     "@types/express": "^5.0.1",
     "@types/node": "^20.17.19",
