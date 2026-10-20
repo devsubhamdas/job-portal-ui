@@ -16,23 +16,27 @@
 
     <div>
       <div class="mt-8 mb-4"><span class="text-lg font-medium"> Profile Details </span></div>
-      <div class="grid grid-cols-[320px_1fr] grid-rows-3">
-        <!-- label  -->
-        <div><span class="text-slate-400">Full Name</span></div>
-        <!-- value  -->
-        <div>
-          <span>{{ user?.name || '' }}</span>
-        </div>
+      <div>
+        <div
+          class="grid grid-cols-[100px_minmax(0,1fr)] sm:grid-cols-[210px_minmax(0,1fr)] lg:grid-cols-[320px_minmax(0,1fr)]"
+        >
+          <!-- label  -->
+          <div><span class="text-slate-400">Full Name</span></div>
+          <!-- value  -->
+          <div>
+            <span>{{ user?.name || '' }}</span>
+          </div>
 
-        <!-- divider -->
-        <div class="col-span-2">
-          <p-divider />
-        </div>
+          <!-- divider -->
+          <div class="col-span-2">
+            <p-divider />
+          </div>
 
-        <!-- label  -->
-        <div class="text-slate-400">Email</div>
-        <!-- value  -->
-        <div>{{ user?.email || '' }}</div>
+          <!-- label  -->
+          <div class="text-slate-400">Email</div>
+          <!-- value  -->
+          <div class="break-all">{{ user?.email || '' }}</div>
+        </div>
       </div>
     </div>
   </div>

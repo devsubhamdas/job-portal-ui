@@ -12,15 +12,19 @@ header {
 }
 
 .p-menubar-item-link {
-  @apply p-4 text-slate-500;
+  @apply p-4 text-slate-400;
 }
 .p-menubar-item-link-active {
-  @apply border-b-2 border-slate-500;
+  @apply min-[960px]:border-b-2 border-slate-500;
 }
 
 .p-menubar-item-link-active.p-menubar-item-link,
 .p-menubar-item-link-active .p-menubar-item-icon {
   @apply text-slate-900;
+}
+
+.p-menubar-item.p-focus > .p-menubar-item-content {
+  background: none;
 }
 
 .p-button:focus {

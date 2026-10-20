@@ -1,11 +1,24 @@
 @let loginErr = loginError();
 <header class="sticky top-0">
   <nav>
-    <div class="bg-slate-200 flex items-center justify-between px-2.5">
-      <a routerLink="/" class="text-xl text-gray-600">Job Portal</a>
-      <p-menubar [model]="navbarItems()" class="bg-transparent rounded-none text-black p-0" />
+    <div
+      class="relative bg-slate-200 flex items-center min-[961px]:justify-between px-2.5 max-[960px]:py-2"
+    >
+      <a routerLink="/" class="text-xl text-gray-600 max-[960px]:mr-auto">Job Portal</a>
+      <p-menubar
+        [model]="navbarItems()"
+        [pt]="{
+          root: { class: 'max-[960px]:static!' },
+          rootList: {
+            class:
+              'max-[960px]:left-2.5! max-[960px]:right-auto! max-[960px]:w-76! max-[960px]:max-w-[calc(100vw-1.25rem)]!',
+          },
+        }"
+        class="bg-transparent rounded-none text-black p-0 max-[960px]:order-first"
+      />
+
       <div>
-        @if (authUser() === null) {
+        @if (authUser() === null && authUser() !== undefined) {
           <div>
             <p-button
               label="Login"
@@ -17,7 +30,7 @@
               class="focus:outline-none focus:border-none"
             />
           </div>
-        } @else {
+        } @else if (authUser() !== null || authUser() !== undefined) {
           <div>
             <p-menu #profileMenu [model]="profileMenuItems" [popup]="true" appendTo="body" />
             <p-button

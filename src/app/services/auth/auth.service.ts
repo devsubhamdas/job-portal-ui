@@ -8,7 +8,9 @@ import { firstValueFrom, tap } from 'rxjs';
 })
 export class AuthService {
   readonly authLoading = signal(true);
-  readonly user = signal<{ id: string; name: string; email: string; role: string } | null>(null);
+  readonly user = signal<
+    { id: string; name: string; email: string; role: string } | null | undefined
+  >(undefined);
   private loginGQL = inject(LoginGQL);
   private logoutGQL = inject(LogoutGQL);
   private meGQL = inject(MeGQL);

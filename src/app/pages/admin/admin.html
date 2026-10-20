@@ -4,9 +4,11 @@
     <div>
       <p-button
         icon="pi pi-plus"
-        label="Create Job"
+        label="New Job"
+        ariaLabel="New Job"
         severity="contrast"
         size="small"
+        [pt]="{ label: { class: 'max-[960px]:hidden!' }, icon: { class: 'max-[960px]:py-1!' } }"
         (onClick)="showCreateJobDialog()"
       />
     </div>
@@ -43,7 +45,11 @@
     (onHide)="onDialogHide()"
   >
     <div>
-      <form [formGroup]="createJobForm" class="w-md max-w-lg" (ngSubmit)="handleCreateJob($event)">
+      <form
+        [formGroup]="createJobForm"
+        class="w-[calc(100vw-5rem)] max-w-lg"
+        (ngSubmit)="handleCreateJob($event)"
+      >
         <div class="flex flex-col gap-4">
           <div class="flex flex-col gap-2">
             <input
