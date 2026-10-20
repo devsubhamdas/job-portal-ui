@@ -23,6 +23,7 @@ import { Popover, PopoverModule } from 'primeng/popover';
 import { PanelModule } from 'primeng/panel';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { ToastModule } from 'primeng/toast';
+import { SkeletonModule } from 'primeng/skeleton';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from './services/auth/auth.service';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
@@ -53,6 +54,7 @@ type Job = JobCreatedSubscription['jobCreated'];
     ConfirmDialogModule,
     RouterLinkWithHref,
     CommonModule,
+    SkeletonModule,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './app.html',
@@ -98,6 +100,7 @@ export class App implements OnInit {
   formSubmitAttempted = false;
   loginInProgress = signal<boolean>(false);
   readonly authUser: typeof this.authService.user;
+  readonly authCheckLoading: typeof this.authService.authLoading;
   loginError = signal<{ field: string; message: string } | null>(null);
 
   newJobPostList = signal<Job[]>([]);
@@ -124,6 +127,7 @@ export class App implements OnInit {
     private destroyRef: DestroyRef,
   ) {
     this.authUser = this.authService.user;
+    this.authCheckLoading = this.authService.authLoading;
     this.loginDialogVisibility = this.loginDialogService.visible;
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],

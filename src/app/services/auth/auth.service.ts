@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { LoginGQL, LogoutGQL, MeGQL, SignupGQL } from '../../../generated/operations';
 import { LoginInput, SignupInput } from '../../../generated/schema';
-import { firstValueFrom, tap } from 'rxjs';
+import { firstValueFrom, tap, timeout } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -44,10 +44,8 @@ export class AuthService {
     this.authLoading.set(true);
 
     try {
-      const result = await firstValueFrom(this.meGQL.fetch());
-      if (result.data) {
-        this.user.set(result.data.me);
-      }
+      const result = await firstValueFrom(this.meGQL.fetch().pipe(timeout(8000)));
+      this.user.set(result.data?.me ?? null);
     } catch (err) {
       this.user.set(null);
     } finally {
