@@ -42,7 +42,6 @@ export class AuthService {
 
   async loadCurrentUser(): Promise<void> {
     this.authLoading.set(true);
-
     try {
       const result = await firstValueFrom(this.meGQL.fetch().pipe(timeout(8000)));
       this.user.set(result.data?.me ?? null);

@@ -30,7 +30,7 @@ export const appConfig: ApplicationConfig = {
     apolloProvider,
     provideAppInitializer(() => {
       const auth = inject(AuthService);
-      return auth.loadCurrentUser();
+      auth.loadCurrentUser();
     }),
     { provide: LOCALE_ID, useValue: 'en-IN' },
     providePrimeNG({
