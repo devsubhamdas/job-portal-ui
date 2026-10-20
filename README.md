@@ -4,7 +4,7 @@ Frontend application for a job portal platform built with **Angular, Apollo Clie
 
 The application allows users to browse and apply for jobs, create and manage job postings, track applications, and receive real-time notifications.
 
-`Live Demo`: https://job-portal-73ah.onrender.com/
+`Live Demo`: <a hrem="https://job-portal-devsubhamdas.netlify.app/" target="_blank">Job Portal Website</a>
 
 ## Features
 
