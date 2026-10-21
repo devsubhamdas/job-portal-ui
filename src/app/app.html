@@ -1,57 +1,72 @@
 @let loginErr = loginError();
 <header class="sticky top-0">
-  <nav>
-    <div
-      class="relative bg-slate-200 flex items-center min-[961px]:justify-between px-2.5 max-[960px]:py-2"
-    >
-      <a routerLink="/" class="text-xl text-gray-600 max-[960px]:mr-auto">Job Portal</a>
-      <p-menubar
-        [model]="navbarItems()"
-        [pt]="{
-          root: { class: 'max-[960px]:static!' },
-          rootList: {
-            class:
-              'max-[960px]:left-2.5! max-[960px]:right-auto! max-[960px]:w-76! max-[960px]:max-w-[calc(100vw-1.25rem)]!',
-          },
-        }"
-        class="bg-transparent rounded-none text-black p-0 max-[960px]:order-first"
-      />
-
-      <div>
-        @if (authCheckLoading()) {
-          <p-skeleton class="bg-slate-300" width="5rem" height="2rem" />
-        } @else if (!authCheckLoading() && authUser()) {
-          <div>
-            <p-menu #profileMenu [model]="profileMenuItems" [popup]="true" appendTo="body" />
-            <p-button
-              (click)="profileMenu.toggle($event)"
-              icon="pi pi-user"
-              size="small"
-              severity="contrast"
-              class="focus:outline-none focus:border-none"
-            />
-          </div>
-        } @else if (!authCheckLoading() && authUser() === null) {
-          <div>
-            <p-button
-              label="Login"
-              icon="pi pi-sign-in"
-              severity="contrast"
-              size="small"
-              [autofocus]="false"
-              (onClick)="showLoginDialog()"
-              class="focus:outline-none focus:border-none"
-            />
-          </div>
-        }
-      </div>
+  @if (!ready()) {
+    <div>
+      <p-skeleton class="w-full rounded-none bg-slate-200" height="51px" />
     </div>
-  </nav>
+  } @else {
+    <nav>
+      <div
+        class="relative bg-slate-200 flex items-center min-[961px]:justify-between px-2.5 max-[960px]:py-2"
+      >
+        <p-menubar
+          [model]="navbarItems()"
+          [pt]="{
+            root: { class: 'max-[960px]:static!' },
+            rootList: {
+              class:
+                'max-[960px]:left-2.5! max-[960px]:right-auto! max-[960px]:w-76! max-[960px]:max-w-[calc(100vw-1.25rem)]!',
+            },
+          }"
+          class="bg-transparent rounded-none text-black p-0"
+          [class.invisible]="!ready()"
+        />
+
+        <a routerLink="/" class="text-xl text-gray-600 max-[960px]:mr-auto min-[961px]:order-first"
+          >Job Portal</a
+        >
+
+        <div>
+          @if (authCheckLoading()) {
+            <p-skeleton class="bg-slate-300" width="5rem" height="2rem" />
+          } @else if (!authCheckLoading() && authUser()) {
+            <div>
+              <p-menu #profileMenu [model]="profileMenuItems" [popup]="true" appendTo="body" />
+              <p-button
+                (click)="profileMenu.toggle($event)"
+                icon="pi pi-user"
+                size="small"
+                severity="contrast"
+                class="focus:outline-none focus:border-none"
+              />
+            </div>
+          } @else if (!authCheckLoading() && authUser() === null) {
+            <div>
+              <p-button
+                label="Login"
+                icon="pi pi-sign-in"
+                severity="contrast"
+                size="small"
+                [autofocus]="false"
+                (onClick)="showLoginDialog()"
+                class="focus:outline-none focus:border-none"
+              />
+            </div>
+          }
+        </div>
+      </div>
+    </nav>
+  }
 </header>
 
 <main>
-  <p-toast />
-  <p-confirmdialog />
+  <p-toast
+    position="top-right"
+    [breakpoints]="{
+      '420px': { width: 'calc(100% - 5rem)', right: '0', left: 'auto', 'padding-right': '16px' },
+    }"
+  />
+  <p-confirmdialog styleClass="mx-4" />
   <div class="px-2.5">
     <router-outlet />
   </div>
@@ -84,12 +99,12 @@
     [focusOnShow]="false"
     (onHide)="onDialogHide()"
   >
-    <div>
+    <div class="w-[calc(100vw-4rem)] max-w-xs">
       <form
         #loginFormEl
         [formGroup]="loginForm"
         (ngSubmit)="onLogin($event)"
-        class="flex flex-col gap-4 w-xs max-w-md"
+        class="flex flex-col gap-4 w-full"
       >
         <div class="flex flex-col gap-2">
           <input

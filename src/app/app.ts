@@ -10,6 +10,7 @@ import {
   NgZone,
   inject,
   PLATFORM_ID,
+  afterNextRender,
 } from '@angular/core';
 import { RouterOutlet, Router, RouterLinkWithHref } from '@angular/router';
 import { MenubarModule } from 'primeng/menubar';
@@ -62,6 +63,7 @@ type Job = JobCreatedSubscription['jobCreated'];
 })
 export class App implements OnInit {
   protected readonly title = signal('client');
+  ready = signal(false);
   navbarItems = computed<MenuItem[]>(() => {
     const user = this.authService.user();
     return [
@@ -132,6 +134,11 @@ export class App implements OnInit {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
+    });
+
+    afterNextRender(() => {
+      // wait a frame so Menubar's own matchMedia check has applied
+      requestAnimationFrame(() => this.ready.set(true));
     });
   }
 
