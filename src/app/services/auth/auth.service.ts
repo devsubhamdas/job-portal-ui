@@ -1,7 +1,8 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { LoginGQL, LogoutGQL, MeGQL, SignupGQL } from '../../../generated/operations';
 import { LoginInput, SignupInput } from '../../../generated/schema';
 import { firstValueFrom, tap, timeout } from 'rxjs';
+import { isPlatformBrowser } from '@angular/common';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +16,8 @@ export class AuthService {
   private logoutGQL = inject(LogoutGQL);
   private meGQL = inject(MeGQL);
   private signupGQL = inject(SignupGQL);
+
+  private platformId = inject(PLATFORM_ID);
 
   login(payload: LoginInput) {
     return this.loginGQL.mutate({ variables: { input: payload } }).pipe(
@@ -42,6 +45,7 @@ export class AuthService {
 
   async loadCurrentUser(): Promise<void> {
     this.authLoading.set(true);
+    if (!isPlatformBrowser(this.platformId)) return;
     try {
       const result = await firstValueFrom(this.meGQL.fetch().pipe(timeout(8000)));
       this.user.set(result.data?.me ?? null);
