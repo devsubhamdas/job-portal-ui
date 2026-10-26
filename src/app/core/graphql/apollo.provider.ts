@@ -18,6 +18,10 @@ export const apolloProvider = provideApollo(() => {
   const cookie = request?.headers.get('cookie') ?? null;
   const headers = isServer && cookie ? new HttpHeaders({ cookie }) : undefined;
 
+  if (!environment.graphqlHttpUri || !environment.graphqlWsUri) {
+    throw new Error('Missing GraphQL configuration: graphqlHttpUri and graphqlWsUri are required.');
+  }
+
   const httpLink = $httpLink.create({
     uri: environment.graphqlHttpUri,
     withCredentials: true,

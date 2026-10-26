@@ -1,6 +1,6 @@
 // environment.ts (prod)
 export const environment = {
   production: true,
-  graphqlHttpUri: 'http://localhost:8080/graphql',
-  graphqlWsUri: 'ws://localhost:8080/graphql',
+  graphqlHttpUri: import.meta.env['NG_APP_GRAPHQL_HTTP_URI'],
+  graphqlWsUri: import.meta.env['NG_APP_GRAPHQL_WS_URI'],
 };
