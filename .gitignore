@@ -44,7 +44,6 @@ __screenshots__/
 Thumbs.db
 
 # Environments
-/src/environments
 .env
 .env.*
 !.env.example
