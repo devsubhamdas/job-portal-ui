@@ -14,9 +14,10 @@ import {
 } from '@netlify/angular-runtime/app-engine.js';
 import { createRequestHandler } from '@angular/ssr';
 
-const allowedHosts = import.meta.env['NG_APP_ALLOWED_HOST']
-  ? String(import.meta.env['NG_APP_ALLOWED_HOST']).split(',')
-  : ['localhost'];
+const allowedHosts = (String(import.meta.env['NG_APP_ALLOWED_HOST']) ?? '')
+  .split(',')
+  .map((host) => host.trim().replace(/\/+$/, ''))
+  .filter(Boolean);
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
