@@ -7,14 +7,15 @@ import {
 import express from 'express';
 import { join } from 'node:path';
 
+const allowedHosts = import.meta.env['NG_APP_ALLOWED_HOST']
+  ? String(import.meta.env['NG_APP_ALLOWED_HOST']).split(',')
+  : ['localhost'];
+
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
 const angularApp = new AngularNodeAppEngine({
-  allowedHosts:
-    import.meta.env['NG_APP_ENV'] === 'development'
-      ? ['localhost']
-      : [import.meta.env['NG_APP_ALLOWED_HOST']],
+  allowedHosts,
 });
 
 /**

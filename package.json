@@ -8,7 +8,7 @@
     "build:dev": "ng build --configuration development",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:client": "node dist/client/server/server.mjs",
+    "serve:ssr": "node dist/client/server/server.mjs",
     "codegen": "graphql-codegen --config codegen.ts",
     "codegen:watch": "graphql-codegen --config codegen.ts --watch"
   },
