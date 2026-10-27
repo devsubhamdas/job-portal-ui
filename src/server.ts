@@ -7,6 +7,13 @@ import {
 import express from 'express';
 import { join } from 'node:path';
 
+import {
+  getAllowedHosts,
+  getContext,
+  getTrustProxyHeaders,
+} from '@netlify/angular-runtime/app-engine.js';
+import { createRequestHandler } from '@angular/ssr';
+
 const allowedHosts = import.meta.env['NG_APP_ALLOWED_HOST']
   ? String(import.meta.env['NG_APP_ALLOWED_HOST']).split(',')
   : ['localhost'];
@@ -15,8 +22,34 @@ const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
 const angularApp = new AngularNodeAppEngine({
-  allowedHosts,
+  allowedHosts: { ...allowedHosts, ...getAllowedHosts() },
+  trustProxyHeaders: getTrustProxyHeaders(),
 });
+
+export async function netlifyAppEngineHandler(request: Request): Promise<Response> {
+  const context = getContext();
+  try {
+    const result = await angularApp.handle(request, context);
+    if (result) return result;
+  } catch (err) {
+    console.error('SSR failed, serving CSR shell', err);
+    try {
+      const csr = await fetch(new URL('/index.csr.html', request.url));
+      if (csr.ok) {
+        return new Response(csr.body, {
+          status: 200,
+          headers: { 'content-type': 'text/html; charset=utf-8' },
+        });
+      }
+    } catch (fetchErr) {
+      console.error('CSR fallback fetch failed', fetchErr);
+    }
+    return new Response('Service temporarily unavailable', { status: 503 });
+  }
+  return new Response('Not found', { status: 404 });
+}
+
+export const reqHandler = createRequestHandler(netlifyAppEngineHandler);
 
 /**
  * Example Express Rest API endpoints can be defined here.
@@ -69,4 +102,4 @@ if (isMainModule(import.meta.url) || process.env['pm_id']) {
 /**
  * Request handler used by the Angular CLI (for dev-server and during build) or Firebase Cloud Functions.
  */
-export const reqHandler = createNodeRequestHandler(app);
+// export const reqHandler = createNodeRequestHandler(app);
