@@ -19,6 +19,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/admin/admin').then((m) => m.Admin),
   },
   {
+    path: 'about',
+    loadComponent: () => import('./pages/about/about').then((m) => m.About),
+  },
+  {
     path: 'signup',
     canActivate: [guestGuard],
     loadComponent: () => import('./pages/signup/signup').then((m) => m.Signup),

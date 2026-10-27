@@ -93,6 +93,14 @@ export class App implements OnInit {
           exact: false,
         },
       },
+      {
+        label: 'About',
+        icon: 'pi pi-user',
+        routerLink: ['/about'],
+        routerLinkActiveOptions: {
+          exact: false,
+        },
+      },
     ];
   });
 
