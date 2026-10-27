@@ -95,7 +95,7 @@ export class App implements OnInit {
       },
       {
         label: 'About',
-        icon: 'pi pi-user',
+        icon: 'pi pi-info-circle',
         routerLink: ['/about'],
         routerLinkActiveOptions: {
           exact: false,
